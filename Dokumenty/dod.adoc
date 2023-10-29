@@ -1,0 +1,8 @@
+= Seznam Definition of Done
+Seznam podmínek, které musí být splněny, aby bylo možné úkol v rámci sprintu označit jako dokončený.
+
+[start=1]
+. Funkcionalita je naimplementována a je funkční, tedy dodává zákazníkovi onu definovanou hodnotu, a je akceptována jak analytikem, tak Product Ownerem.
+. Funkcionalita je důkladně otestována v souladu s akceptačními kritérii a je akceptována testerem.
+. Kód je napsán self-documenting formou s dalším využitím efektivní inline dokumentace v místech, která potenciálně ohrožují, že by jiný člen týmu nebyl schopen porozumět kódu. Tester po otestování funkcionality udělá review kódu a zajistí případnou nápravu nedostatků.
+. Aplikace, již zahrnující novou funkcionalitu, běží v testovacím prostředí.
