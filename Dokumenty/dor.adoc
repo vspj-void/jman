@@ -1,0 +1,11 @@
+= Seznam Definition of Ready
+Seznam podmínek, které musí být splněny, aby User Story mohl být zeřazen do sprintu a mohlo začít jeho řešení.
+
+[start=1]
+. User Story v sobě nese hodnotu pro zákazníka
+. User Story je nezávislá od ostatních User Stories tak, že ji lze nasadit jako ucelenou funkcionalitu, která zákazníkovi přináší hodnotu sama o sobě
+. Product Owner chápe pohled zákazníka a umí vyprávět příběh dané User Story tak, aby týmu vysvětlil podstatu dané funkcionality, jakož i její hodnotu pro zákazníka
+. Tým rozumí podstatě dané funkcionality a je schopen zhodnotit její implementační náročnost, v sobě zahrnující jak psaní kódu, tak dokumentaci, testování a další činnosti, které jsou s dodáním funkcionality neodmyslitelně spjaté
+. Funkcionalita je natolik drobná, že je ji tým schopen dodat v časovém horizontu odpovídajícím nanejvýš polovině jednoho sprintu
+. Funkčnost dané funkcionality ověřují akceptační kritéria, jejichž pomocí lze jednoznačně určit, zda zákazníkovi přináší kýžený business efekt
+. Tým má k dispozici všechny informace, nástroje a zdroje potřebné k zahájení práce na User Story.
