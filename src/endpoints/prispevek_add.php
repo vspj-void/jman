@@ -87,10 +87,10 @@ $prispevekName = filter_var($prispevekName, FILTER_SANITIZE_STRING);
 try {
     $mysqli->begin_transaction();
 
-    $queryPrispevek = "INSERT INTO PRISPEVEK (VERZE, NAZEV, CESTA, ID_CASOPISU) VALUES (?, ?, ?, ?)";
+    $queryPrispevek = "INSERT INTO PRISPEVEK (ID_CASOPISU) VALUES (?)";
 
     $stmtPrispevek = $mysqli->prepare($queryPrispevek);
-    $stmtPrispevek->bind_param("issi", $prispevekVersion, $prispevekName, $prispevekFileName, $prispevekCasopisId);
+    $stmtPrispevek->bind_param("i", $prispevekCasopisId);
     $resultPrispevek = $stmtPrispevek->execute();
 
     if (!$resultPrispevek) {
@@ -104,6 +104,23 @@ try {
     }
 
     $prispevekId = $mysqli->insert_id;
+
+
+    $queryPrispevekVer = "INSERT INTO PRISPEVEKVER (VERZE, NAZEV, CESTA, ID_PRISPEVKU) VALUES (?, ?, ?, ?)";
+    
+    $stmtPrispevekVer = $mysqli->prepare($queryPrispevekVer);
+    $stmtPrispevekVer->bind_param("issi", $prispevekVersion, $prispevekName, $prispevekFileName, $prispevekId);
+    $resultPrispevekVer = $stmtPrispevekVer->execute();
+
+    if (!$resultPrispevekVer) {
+        // Vložení příspěvku selhalo
+        $mysqli->rollback();
+
+        $response = ["success" => false, "message" => "Could not insert into prispevek due to: {$mysqli->error}"];
+        header("Content-Type: application/json");
+        echo json_encode($response);
+        return;
+    }
 
     foreach ($prispevekAuthorIds as $authorId) {
         $resultAuthor = $mysqli->query("INSERT INTO AUTORI (ID_OSOBY, ID_PRISPEVKU, VERZE) VALUES ({$authorId}, {$prispevekId}, {$prispevekVersion})");
