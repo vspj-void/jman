@@ -71,18 +71,20 @@ $prispevekCasopisId = $_POST["prispevekCasopisId"];
 $prispevekFileName = getUniqueFileName($prispevekFile["name"]);
 
 // Vytvoř novou složku pro upload, pokud neexistuje
-if (!file_exists(UPLOAD_DIRECTORY)) {
-    mkdir(UPLOAD_DIRECTORY, 0777, true);
+if (!file_exists(UPLOAD_ARTICLES_DIRECTORY)) {
+    mkdir(UPLOAD_ARTICLES_DIRECTORY, 0777, true);
 
     // Nastav práva na R/W/X, ať můžeme složku v případě potřeby sami spravovat
-    chmod(UPLOAD_DIRECTORY, 0777);
+    chmod(UPLOAD_ARTICLES_DIRECTORY, 0777);
 }
 
 // Ulož soubor příspěvku
-saveFile($prispevekFile, UPLOAD_DIRECTORY . "/" . $prispevekFileName);
+saveFile($prispevekFile, UPLOAD_ARTICLES_DIRECTORY . DIRECTORY_SEPARATOR . $prispevekFileName);
 
 // Zvaliduj vstupní data
 $prispevekName = filter_var($prispevekName, FILTER_SANITIZE_STRING);
+
+$mysqli = DbConnect::connect();
 
 try {
     $mysqli->begin_transaction();

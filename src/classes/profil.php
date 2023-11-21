@@ -1,9 +1,22 @@
 <?php
 
+require_once "classes/role.php";
+
 class Profil
 {
+    /**
+     * @var string
+     */
     private $login;
+
+    /**
+     * @var Role
+     */
     private $role;
+
+    /**
+     * @var string
+     */
     private $heslo;
 
     public function __construct($login, $role, $heslo)
@@ -28,4 +41,3 @@ class Profil
         return $this->heslo;
     }
 }
-?>

@@ -1,4 +1,25 @@
-<?php require_once "config/config.php"; ?>
+<?php
+
+require_once "config/config.php";
+require_once "classes/session_info.php";
+
+session_start();
+if ($requiresAuthentication) {
+    if (!SessionInfo::isUserLogged()) {
+        // User not authorized
+        // Redirect to default page
+        echo "<script>alert('Pro přístup na stránku se vyžaduje přihlášení.'); window.location.replace('./index.php');</script>";
+        exit;
+    }
+
+    if ($requiresRole && !in_array(SessionInfo::getLoggedOsoba()->getProfil()->getrole(), $allowedRoles)) {
+        // User not authorized
+        // Redirect to default page
+        echo "<script>alert('Pro přístup na stránku musíte mít požadovanou roli.'); window.location.replace('./index.php');</script>";
+        exit;
+    }
+}
+?>
 
 <!DOCTYPE html>
 <html lang="cs">

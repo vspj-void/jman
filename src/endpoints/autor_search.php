@@ -12,6 +12,8 @@ if ($_SERVER["REQUEST_METHOD"] != "POST" || (!isset($_POST["queryJmeno"]) && !is
 $searchTermJmeno = $_POST["queryJmeno"] ?? "";
 $searchTermPrijmeni = $_POST["queryPrijmeni"] ?? "";
 
+$mysqli = DbConnect::connect();
+
 // Vyhledej autora (login je null nebo role jeho profilu je 1, tj. role autor) podle jména a příjmení
 $query = "SELECT OSOBA.ID, OSOBA.MAIL, OSOBA.JMENO, OSOBA.PRIJMENI
           FROM OSOBA
