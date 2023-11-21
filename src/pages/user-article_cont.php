@@ -7,7 +7,11 @@ require_once "classes/session_info.php";
 
 $mysqli = DbConnect::connect();
 
-$query = "SELECT * FROM CASOPIS";
+$query = "SELECT C.*, 0 AS `POCET_PRISPEVKU`, COUNT(P.ID) AS `POCET_PRISPEVKU_ZAJEM` FROM CASOPIS AS C
+          INNER JOIN PRISPEVEK AS P
+          ON P.ID_CASOPISU = C.ID
+          WHERE P.STAV = 1
+          GROUP BY P.ID_CASOPISU";
 $result = $mysqli->query($query);
 
 if (!$result) {
@@ -18,7 +22,130 @@ $casopisResults = $result->fetch_all(MYSQLI_ASSOC);
 
 ?>
 
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPrispevekModal">Nový článek</button>
+<?php
+
+$articlesPerPage = 8;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $articlesPerPage;
+
+if (isset($_POST["articleSubmit"])) {
+    $articleName = $_POST["articleName"];
+    $articleFile = $_FILES["articleFile"];
+    // var_dump($articleFile);
+}
+
+?>
+
+<?php
+// Přidaný kód pro řazení a vyhledávání
+$searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
+$sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'NAZEV'; // defaultní řazení podle Názvu
+$sortOrder = isset($_GET['order']) && strtoupper($_GET['order']) === 'DESC' ? 'DESC' : 'ASC';
+
+// Dotaz pro získání článků s možností řazení
+$queryArticles = "SELECT PV.*, O.JMENO as AUTOR_JMENO, O.PRIJMENI as AUTOR_PRIJMENI, C.TEMA as CASOPIS_TEMA 
+                  FROM PRISPEVEKVER PV
+                  INNER JOIN PRISPEVEK P ON PV.ID_PRISPEVKU = P.ID
+                  INNER JOIN AUTORI A ON P.ID = A.ID_PRISPEVKU
+                  INNER JOIN OSOBA O ON A.ID_OSOBY = O.ID
+                  INNER JOIN CASOPIS C ON P.ID_CASOPISU = C.ID
+                  WHERE O.ID = " . SessionInfo::getLoggedOsoba()->getId();
+
+// Pokud je zadán vyhledávací termín
+if (!empty($searchTerm)) {
+    $queryArticles .= " AND PV.NAZEV LIKE '%$searchTerm%'";
+}
+
+$mysqli = DbConnect::connect();
+$queryArticles .= " ORDER BY $sortBy $sortOrder LIMIT $offset, $articlesPerPage";
+
+$resultArticles = $mysqli->query($queryArticles);
+
+?>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPrispevekModal">Nový článek</button>
+        </div>
+        <div class="col-md-6">
+            <form method="GET" action="?page=<?= $page; ?>" class="row input-group mb-3">
+                <div class="col-6"> <!--šířka vyhledávacího pole-->
+                    <input type="text" class="form-control" id="searchInput" name="search" placeholder="Zadejte název článku">
+                </div>
+                <div class="col-6">
+                    <button type="submit" class="btn btn-primary btn-block">Vyhledat</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <!-- Odkazy na řazení -->
+                <th scope="col"><a href="?page=<?= $page; ?>&sort=NAZEV&order=<?= ($sortBy === 'NAZEV' && $sortOrder === 'ASC') ? 'DESC' : 'ASC'; ?>">Název</a></th>
+                <th scope="col"><a href="?page=<?= $page; ?>&sort=AUTOR_PRIJMENI&order=<?= ($sortBy === 'AUTOR_PRIJMENI' && $sortOrder === 'ASC') ? 'DESC' : 'ASC'; ?>">Autor</a></th>
+                <th scope="col"><a href="?page=<?= $page; ?>&sort=TEMA&order=<?= ($sortBy === 'TEMA' && $sortOrder === 'ASC') ? 'DESC' : 'ASC'; ?>">Téma časopisu</a></th>
+                <th scope="col">Otevřít článek</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'NAZEV'; // defaultní řazení podle Názvu
+            while ($rowArticle = $resultArticles->fetch_assoc()) : ?>
+                <tr>
+                    <td><?= !empty($rowArticle["NAZEV"]) ? $rowArticle["NAZEV"] : "Název není k dispozici"; ?></td>
+                    <td><?= isset($rowArticle["AUTOR_JMENO"]) && isset($rowArticle["AUTOR_PRIJMENI"]) ? $rowArticle["AUTOR_JMENO"] . " " . $rowArticle["AUTOR_PRIJMENI"] : "Autor není k dispozici"; ?></td>
+                    <td><?= !empty($rowArticle["CASOPIS_TEMA"]) ? $rowArticle["CASOPIS_TEMA"] : "Téma není k dispozici"; ?></td>
+                    <td><a href="<?= isset($rowArticle["CESTA"]) ? (UPLOAD_ARTICLES_URL . "/") . $rowArticle["CESTA"] : "#"; ?>" class="btn btn-primary" target="_blank">Otevřít článek</a></td>
+                </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
+</div>
+
+<!--Žádný záznam neodpovídá požadavkům. -->
+<div class="container mt-4">
+    <?php if ($resultArticles->num_rows > 0) : ?>
+        <table class="table table-bordered table-striped">
+            <!-- Tabulka obsahuje záznamy -->
+        </table>
+    <?php else : ?>
+        <h5>Žádný záznam neodpovídá požadavkům.</h5>
+    <?php endif; ?>
+</div>
+
+<!--tlačítko na zobrazení všeho-->
+<div class="container mt-4">
+    <form method="GET" action="?page=<?= $page; ?>" class="row">
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">Zobrazit všechny články</button>
+        </div>
+    </form>
+</div>
+
+
+
+<div class="container">
+    <ul class="pagination justify-content-center">
+        <?php
+        $totalArticlesQuery = "SELECT COUNT(*) as total FROM PRISPEVEKVER PV
+                               INNER JOIN PRISPEVEK P ON PV.ID_PRISPEVKU = P.ID
+                               INNER JOIN AUTORI A ON P.ID = A.ID_PRISPEVKU
+                               WHERE P.STAV = 1";
+        $totalArticlesResult = $mysqli->query($totalArticlesQuery);
+        $totalArticles = $totalArticlesResult->fetch_assoc()['total'];
+        $totalPages = ceil($totalArticles / $articlesPerPage);
+
+        for ($i = 1; $i <= $totalPages; $i++) :
+        ?>
+            <li class="page-item <?= ($i == $page) ? 'active' : ''; ?>">
+                <a class="page-link" href="?page=<?= $i; ?>"><?= $i; ?></a>
+            </li>
+        <?php endfor; ?>
+    </ul>
+</div>
+
 
 <!-- Modální okno pro přidání nového příspěvku -->
 <div class="modal fade" id="addPrispevekModal" tabindex="-1" aria-labelledby="addPrispevekModalLabel" aria-hidden="true">
@@ -32,12 +159,13 @@ $casopisResults = $result->fetch_all(MYSQLI_ASSOC);
                 <form id="addPrispevekForm" enctype="multipart/form-data">
                     <div class="row g-3">
                         <div class="col-md-12">
-                            <label for="prispevekCasopisId">Téma</label>
-                            <select class="form-select" name="prispevekCasopisId" id="prispevekCasopisId">
+                            <label for="prispevekCasopisId">Tématické číslo (zájem/přijato/kapacita)</label>
+                            <select class="form-select" name="prispevekCasopisId" id="prispevekCasopisId" required>
+                                <option value="" disabled selected>Zvolte tematické číslo časopisu</option>
                                 <?php
                                 foreach ($casopisResults as $casopis) :
                                 ?>
-                                    <option value="<?= $casopis["ID"]; ?>"><?= $casopis["TEMA"]; ?></option>
+                                    <option value="<?= $casopis["ID"]; ?>"><?= $casopis["TEMA"]; ?> (<?= $casopis["POCET_PRISPEVKU_ZAJEM"]; ?>/<?= $casopis["POCET_PRISPEVKU"]; ?>/<?= $casopis["MAX_POCET_PRISPEVKU"]; ?>)</option>
                                 <?php
                                 endforeach;
                                 ?>
