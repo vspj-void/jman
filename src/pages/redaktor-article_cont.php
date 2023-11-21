@@ -1,10 +1,36 @@
+
 <?php
 require_once "includes/db_connect.php";
 require_once "classes/profil.php";
 
-$articlesPerPage = 8;
+$articlesPerPage = 20;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $articlesPerPage;
+
+// Inicializace objektu $mysqli
+$mysqli = DbConnect::connect();
+
+// Zpracování akce zveřejnění článku
+if (isset($_GET['action']) && $_GET['action'] == 'publishArticle' && isset($_GET['articleId'])) {
+    $articleId = $_GET['articleId'];
+
+    // Aktualizovat stav článku na 0 (zveřejnění článku)
+    $updateStatusQuery = "UPDATE PRISPEVEK SET STAV = 0 WHERE ID = $articleId";
+    $mysqli->query($updateStatusQuery);
+    //Zabraňuje vypsání chyby, že článek už byl odeslán.
+    if (!headers_sent()) {
+        header('Location: redaktor-article.php');
+        exit();
+    } else {
+        // Zde můžeš přidat alternativní kód nebo zprávu, pokud nemůžeš přesměrovat
+        echo 'Probíhá přesměrování...';
+        echo '<meta http-equiv="refresh" content="0;URL=\'redaktor-article.php\'" />';
+        exit();
+    }
+    // Přesměrovat zpět na stránku redaktora
+    header("Location: redaktor-article.php'");
+    exit();
+}
 
 if (isset($_POST["articleSubmit"])) {
     $articleName = $_POST["articleName"];
@@ -16,11 +42,9 @@ if (isset($_POST["articleSubmit"])) {
 
 <div class="container mt-4">
     <div class="jumbotron">
-        <h1 class="display-4">Vítejte na webu časopisu Křídlo</h1>
-        <p class="lead">Píšeme pro Vás</p>
+        <h1 class="display-4">Redaktor</h1>
+        <p class="lead">nově přidané články</p>
         <hr class="my-4">
-        <p>Více informací o nás.</p>
-        <a class="btn btn-primary btn-lg" href="#" role="button">Zjistit více</a>
     </div>
 </div>
 <br/>
@@ -49,20 +73,18 @@ $queryArticles = "SELECT PV.*, O.JMENO as AUTOR_JMENO, O.PRIJMENI as AUTOR_PRIJM
                   INNER JOIN AUTORI A ON P.ID = A.ID_PRISPEVKU
                   INNER JOIN OSOBA O ON A.ID_OSOBY = O.ID
                   INNER JOIN CASOPIS C ON P.ID_CASOPISU = C.ID
-                  WHERE P.STAV = 0";
+                  WHERE P.STAV = 1";
 
 // Pokud je zadán vyhledávací termín
 if (!empty($searchTerm)) {
     $queryArticles .= " AND (PV.NAZEV LIKE '%$searchTerm%' OR O.PRIJMENI LIKE '%$searchTerm%')";
 }
 
-$mysqli = DbConnect::connect();
 $queryArticles .= " ORDER BY $sortBy $sortOrder LIMIT $offset, $articlesPerPage";
 
 $resultArticles = $mysqli->query($queryArticles);
 
 ?>
-
 
 <div class="container mt-4">
     <table class="table table-bordered table-striped">
@@ -73,6 +95,7 @@ $resultArticles = $mysqli->query($queryArticles);
                 <th scope="col"><a href="?page=<?= $page; ?>&sort=AUTOR_PRIJMENI&order=<?= ($sortBy === 'AUTOR_PRIJMENI' && $sortOrder === 'ASC') ? 'DESC' : 'ASC'; ?>">Autor</a></th>
                 <th scope="col"><a href="?page=<?= $page; ?>&sort=TEMA&order=<?= ($sortBy === 'TEMA' && $sortOrder === 'ASC') ? 'DESC' : 'ASC'; ?>">Téma časopisu</a></th>
                 <th scope="col">Otevřít článek</th>
+                <th scope="col">Akce</th> <!-- Nový sloupec pro tlačítko -->
             </tr>
         </thead>
         <tbody>
@@ -83,12 +106,21 @@ $resultArticles = $mysqli->query($queryArticles);
                     <td><?= isset($rowArticle["AUTOR_JMENO"]) && isset($rowArticle["AUTOR_PRIJMENI"]) ? $rowArticle["AUTOR_JMENO"] . " " . $rowArticle["AUTOR_PRIJMENI"] : "Autor není k dispozici"; ?></td>
                     <td><?= !empty($rowArticle["CASOPIS_TEMA"]) ? $rowArticle["CASOPIS_TEMA"] : "Téma není k dispozici"; ?></td>
                     <td><a href="<?= isset($rowArticle["CESTA"]) ? (UPLOAD_ARTICLES_URL . "/") . $rowArticle["CESTA"] : "#"; ?>" class="btn btn-primary" target="_blank">Otevřít článek</a></td>
+                    <td>
+                        <?php
+                        // Kontrola, zda článek již není zveřejněn
+                        if (!isset($rowArticle["STAV"]) || $rowArticle["STAV"] != 0) {
+                            echo '<a href="?page=' . $page . '&action=publishArticle&articleId=' . $rowArticle["ID_PRISPEVKU"] . '" class="btn btn-success">Zveřejnit článek</a>';
+                        } else {
+                            echo '<span class="text-success">Článek je již zveřejněn</span>';
+                        }
+                        ?>
+                    </td>
                 </tr>
             <?php endwhile; ?>
         </tbody>
     </table>
 </div>
-
 
 <!--Žádný záznam neodpovídá požadavkům. -->
 <div class="container mt-4">
@@ -109,8 +141,6 @@ $resultArticles = $mysqli->query($queryArticles);
         </div>
     </form>
 </div>
-
-
 
 <div class="container">
     <ul class="pagination justify-content-center">

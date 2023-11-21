@@ -10,17 +10,23 @@
                     <li class="nav-item">
                         <a class="nav-link" href="user-article.php">Moje články</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="redaktor-article.php">Nové články</a>
+                    </li>
                 </ul>
                 <form class="d-flex">
-                    <?php if (isset($_SESSION["username"])) : ?>
-                        <span class="navbar-text">
-                            Přihlášený uživatel: <?php echo htmlspecialchars($_SESSION["username"]); ?>
-                        </span>
-                        <a href="endpoints/logout.php" class="btn btn-secondary">Odhlásit se</a>
-                    <?php else : ?>
-                        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#loginModal">Přihlášení</button>
+            <?php if (isset($_SESSION["username"])) : ?>
+                <span class="navbar-text">
+                   <Strong>Přihlášený uživatel:</Strong> <?php echo htmlspecialchars($_SESSION["username"]); ?>
+                    <?php if (isset($_SESSION[SESSION_VAR_USER_ROLE])) : ?>
+                        (<?php echo htmlspecialchars($_SESSION[SESSION_VAR_USER_ROLE]); ?>)&nbsp;&nbsp;&nbsp;
                     <?php endif; ?>
-                </form>
+                </span>
+                <a href="endpoints/logout.php" class="btn btn-secondary">Odhlásit se</a>
+            <?php else : ?>
+                <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#loginModal">Přihlášení</button>
+            <?php endif; ?>
+        </form>
             </div>
         </div>
     </nav>
