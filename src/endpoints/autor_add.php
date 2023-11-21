@@ -15,6 +15,8 @@ $mail = filter_var($_POST["mail"], FILTER_SANITIZE_STRING);
 $jmeno = filter_var($_POST["jmeno"], FILTER_SANITIZE_STRING);
 $prijmeni = filter_var($_POST["prijmeni"], FILTER_SANITIZE_STRING);
 
+$mysqli = DbConnect::connect();
+
 // Create a prepared statement
 $stmt = $mysqli->prepare("INSERT INTO OSOBA (MAIL, JMENO, PRIJMENI) VALUES (?, ?, ?)");
 

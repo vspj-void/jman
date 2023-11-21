@@ -4,10 +4,29 @@ require_once "classes/profil.php";
 
 class Osoba
 {
+    /**
+     * @var int
+     */
     private $id;
+
+    /**
+     * @var string
+     */
     private $mail;
+
+    /**
+     * @var string
+     */
     private $jmeno;
+
+    /**
+     * @var string
+     */
     private $prijmeni;
+
+    /**
+     * @var Profil
+     */
     private $profil;
 
     public function __construct($id, $mail, $jmeno, $prijmeni, $profil = null)
@@ -42,14 +61,5 @@ class Osoba
     public function getProfil()
     {
         return $this->profil;
-    }
-
-    public static function getLoggedOsoba()
-    {
-        if (false) {
-            return null;
-        }
-
-        return new Osoba(1, "", "", "", new Profil("testuser", 1, "heslo"));
     }
 }

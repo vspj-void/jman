@@ -3,6 +3,10 @@
 require_once "classes/osoba.php";
 require_once "includes/db_connect.php";
 
+require_once "classes/session_info.php";
+
+$mysqli = DbConnect::connect();
+
 $query = "SELECT * FROM CASOPIS";
 $result = $mysqli->query($query);
 
@@ -119,7 +123,7 @@ $casopisResults = $result->fetch_all(MYSQLI_ASSOC);
 </div>
 
 <script>
-    const loggedOsobaId = <?= Osoba::getLoggedOsoba()->getId(); ?>;
+    const loggedOsobaId = <?= SessionInfo::getLoggedOsoba()->getId(); ?>;
 
     // Množina ID spoluautorů
     const spoluautoriIds = new Set();
@@ -156,7 +160,6 @@ $casopisResults = $result->fetch_all(MYSQLI_ASSOC);
             // Data pro odeslání AJAX požadavku
             const formData = new FormData($("#addPrispevekForm")[0]);
             formData.append("prispevekVersion", 1);
-            formData.append("prispevekCasopisId", 1);
             formData.append("prispevekAuthorIds", authorIds);
 
             $.ajax({
