@@ -1,0 +1,51 @@
+= Uživatelská dokumentace – Časopis Křídlo
+:lang: cs
+:doctype: book
+
+:toc: left
+:toc-title: Obsah
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+== Úvod
+
+Vítejte v uživatelské dokumentaci k systému časopisu Křídlo. Tento dokument poskytuje podrobné informace o jeho funkcích a jejich použití.
+
+== Základní funkce
+
+=== Přihlášení
+
+Pro přihlášení do systému postupujte následovně:
+
+1. ...
+2. ...
+
+=== Moje články
+IMPORTANT: Funkce vyžaduje přihlášení a uživatelskou roli *AUTOR*.
+
+Záložka moje články slouží pro správu vámi nabízených článků. To zahrnuje možnost nabídnutí nového článku či kompletní přehled a historii vámi nabízených článků s možností jejich zobrazení. Pro zobrazení konkrétního článku klikněte na tlačítko "Otevřít článek".
+
+TIP: Své články můžete filtrovat podle názvu vyplněním příslušného pole pro vyhledávání.
+
+==== Nabídnutí a vložení článku
+
+Pro nabídnutí nového článku a jeho vložení do systému postupujte následovně:
+
+1. Na hlavním menu zvolte záložku "Moje články".
+2. Klikněte na tlačítko "Nový článek", které vyvolá vytvářecí formulář.
+3. Z rozevírací nabídky zvolte jedno z nabízených tematických čísel časopisu. U každé z nabízených položek pak vedle samotného tématu vidíte v závorce i související charakteristiky ve formátu *ZÁJEM/PŘIJATO/KAPACITA*.
+* *ZÁJEM*: Aktuální zájem o dané číslo, tj. celkový počet příspěvků v recenzním řízení.
+* *PŘIJATO*: Počet příspěvků, které úspěšně prošly recenzním řízení a budou do daného čísla zařazeny.
+* *KAPACITA*: Maximální počet příspěvků, které mohou být zařazeny do daného čísla.
+4. Vyplňte název svého článku.
+5. Zvolte soubor s plným textem článku z vašeho zařízení, který bude posléze nahrán do systému.
+6. Pokud se na článku podílelo více autorů, uveďte i ostatní členy autorského týmu pomocí tlačítka "Vyhledat autora". Je možné, že daný autor prozatím nebude veden v evidenci časopisu Křídlo; v takovém případě využijte tlačítka "Přidat nového autora" a vyplňte jeho kontaktní údaje.
+7. Ujistěte se, že jste vyplnili všechny informace správně, a dokončete nabídnutí článku tlačítkem "Vložit článek".
+
+NOTE: Podporovanými formáty souboru článku jsou pouze dokumenty typu PDF a DOC(X).

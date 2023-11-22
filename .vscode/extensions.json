@@ -6,7 +6,8 @@
 	"recommendations": [
 		"wscats.eno",
 		"bmewburn.vscode-intelephense-client",
-		"esbenp.prettier-vscode"
+		"esbenp.prettier-vscode",
+		"asciidoctor.asciidoctor-vscode"
 	],
 	// List of extensions recommended by VS Code that should not be recommended for users of this workspace.
 	"unwantedRecommendations": [
