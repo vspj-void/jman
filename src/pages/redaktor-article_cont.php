@@ -38,6 +38,28 @@ if (isset($_POST["articleSubmit"])) {
     // var_dump($articleFile);
 }
 
+// Zpracování akce zamítnutí článku
+if (isset($_GET['action']) && $_GET['action'] == 'rejectArticle' && isset($_GET['articleId'])) {
+    $articleId = $_GET['articleId'];
+
+    // Aktualizovat stav článku na -1 (zamítnutí článku)
+    $updateStatusQuery = "UPDATE PRISPEVEK SET STAV = -1 WHERE ID = $articleId";
+    $mysqli->query($updateStatusQuery);
+    //Zabraňuje vypsání chyby, že článek už byl odeslán.
+    if (!headers_sent()) {
+        header('Location: redaktor-article.php');
+        exit();
+    } else {
+        // Zde můžeš přidat alternativní kód nebo zprávu, pokud nemůžeš přesměrovat
+        echo 'Probíhá přesměrování...';
+        echo '<meta http-equiv="refresh" content="0;URL=\'redaktor-article.php\'" />';
+        exit();
+    }
+    // Přesměrovat zpět na stránku redaktora
+    header("Location: redaktor-article.php'");
+    exit();
+}
+
 ?>
 
 <div class="container mt-4">
@@ -86,6 +108,15 @@ $resultArticles = $mysqli->query($queryArticles);
 
 ?>
 
+<script type="text/javascript">
+// potvrzovací okno na zveřejnění / zamítnutí článku
+function confirmAction(url, message) {
+    if (confirm(message)) {
+        window.location.href = url;
+    }
+}
+</script>
+
 <div class="container mt-4">
     <table class="table table-bordered table-striped">
         <thead class="thead-dark">
@@ -110,7 +141,8 @@ $resultArticles = $mysqli->query($queryArticles);
                         <?php
                         // Kontrola, zda článek již není zveřejněn
                         if (!isset($rowArticle["STAV"]) || $rowArticle["STAV"] != 0) {
-                            echo '<a href="?page=' . $page . '&action=publishArticle&articleId=' . $rowArticle["ID_PRISPEVKU"] . '" class="btn btn-success">Zveřejnit článek</a>';
+                            echo '<a href="#" onclick="confirmAction(\'?page=' . $page . '&action=publishArticle&articleId=' . $rowArticle["ID_PRISPEVKU"] . '\', \'Opravdu chcete zveřejnit tento článek?\')" class="btn btn-success">Zveřejnit článek</a>';
+                            echo '<a href="#" onclick="confirmAction(\'?page=' . $page . '&action=rejectArticle&articleId=' . $rowArticle["ID_PRISPEVKU"] . '\', \'Opravdu chcete zamítnout tento článek?\')" class="btn btn-danger">Zamítnout článek</a>';
                         } else {
                             echo '<span class="text-success">Článek je již zveřejněn</span>';
                         }
