@@ -177,7 +177,7 @@ $resultArticles = $mysqli->query($queryArticles);
                         </div>
                         <div class="col-md-12">
                             <label for="prispevekFile">Soubor článku</label>
-                            <input type="file" class="form-control" id="prispevekFile" name="prispevekFile" required>
+                            <input type="file" class="form-control" id="prispevekFile" name="prispevekFile" accept="application/pdf,.doc,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required>
                         </div>
                         <span>Spolautoři</span>
                         <ul id="coauthorsList" class="list-group list-group">
@@ -280,8 +280,8 @@ $resultArticles = $mysqli->query($queryArticles);
             const fileName = $("#prispevekFile")[0].files[0].name;
             const fileExtension = fileName.split(".").pop().toLowerCase();
 
-            if (fileExtension !== "pdf") {
-                showAlert("Souborem článku může být pouze soubor typu PDF.");
+            if (!["pdf", "doc", "docx"].includes(fileExtension)) {
+                showAlert("Souborem článku mohou být pouze soubory typu PDF či DOC(X).");
                 return;
             }
 
