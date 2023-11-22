@@ -26,8 +26,6 @@ Pro přihlášení do systému postupujte následovně:
 1. ...
 2. ...
 
-== Čtenářské Funkce
-
 === Přehled vydaných článků
 
 Jako čtenář máte možnost prohlížet vydané články přímo na úvodní stránce systému. Postupujte následovně:
