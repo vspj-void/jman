@@ -49,3 +49,31 @@ Pro nabídnutí nového článku a jeho vložení do systému postupujte násled
 7. Ujistěte se, že jste vyplnili všechny informace správně, a dokončete nabídnutí článku tlačítkem "Vložit článek".
 
 NOTE: Podporovanými formáty souboru článku jsou pouze dokumenty typu PDF a DOC(X).
+
+=== Nové články
+IMPORTANT: Funkce vyžaduje přihlášení a uživatelskou roli *REDAKTOR*.
+
+Záložka nové články slouží pro správu nově přidaných článků redaktorem. To zahrnuje možnost Zveřejnění či zamítnutí článku. Pro zobrazení konkrétního článku klikněte na tlačítko "Otevřít článek".
+
+TIP: Články můžete filtrovat podle názvu vyplněním příslušného pole pro vyhledávání a řadit podle názvu, autora nebo tématu časopisu kliknutím na text v příslušné buňce hlavičky tabulky.
+
+Pro zveřejnění článku postupujte následnovně:
+
+1. Na hlavním menu zvolte záložku "Nové články".
+2. Klikněte na zelené tlačítko "Zveřejnit článek".
+3. Zobrazí se vyskakovací okno, pro zveřejnění klikněte na "OK", pokud si článek nepřejete zveřejnit, klikněte na "Zrušit".
+4. Kliknutím na "OK" se článek zveřejní a tudíž zmizí z přehledu nových článků.
+
+=== Přehled všech článků
+IMPORTANT: Funkce vyžaduje přihlášení a uživatelskou roli *REDAKTOR*.
+
+Záložka přehled všech článků slouží pro prohlížení a správu všech článků redaktorem. To zahrnuje možnost Zveřejnění či zamítnutí článku. Pro zobrazení konkrétního článku klikněte na tlačítko "Otevřít článek".
+
+TIP: Články můžete filtrovat podle názvu vyplněním příslušného pole pro vyhledávání a filtrovat podle stavu kliknutím na šedé tlačítko vedle nápisu "Stav" v hlavičce tabulky.
+
+Pro zveřejnění článku postupujte následnovně:
+
+1. Na hlavním menu zvolte záložku "Přehled všech článků".
+2. Klikněte na zelené tlačítko "Zveřejnit článek".
+3. Zobrazí se vyskakovací okno, pro zveřejnění klikněte na "OK", pokud si článek nepřejete zveřejnit, klikněte na "Zrušit".
+4. Kliknutím na "OK" se změní stav článku na "Zveřejněný".
