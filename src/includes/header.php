@@ -1,3 +1,7 @@
+<?php
+require_once "endpoints/get_unread_messages_count.php";
+//require_once "C:/xampp/htdocs/Kridlo/endpoints/get_unread_messages_count.php";
+?>
 <header class="mb-4">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
@@ -12,6 +16,10 @@
                 <?php if ($_SESSION[SESSION_VAR_USER_ROLE] == 'Autor') : ?>
                     <li class="nav-item">
                         <a class="nav-link" href="user-article.php">Moje články</a>
+                    </li>
+                    <?php $unreadCount = getUnreadMessagesCount();?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="autor-message.php">Zprávy<?= $unreadCount > 0 ? "<sup class='text-danger'><b>+$unreadCount</b></sup>" : "" ?></a>
                     </li>
                 <?php endif; ?>
 
