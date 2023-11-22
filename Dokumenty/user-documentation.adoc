@@ -97,7 +97,7 @@ Pro zveřejnění článku postupujte následnovně:
 
 Pro zamítnutí článku postupujte následnovně:
 
-1. Na hlavním menu zvolte záložku "Nové články".
+1. Na hlavním menu zvolte záložku "Přehled všech článků".
 2. Zobrazí se seznam nových článků. Klikněte na červené tlačítko "Zamítnout článek" pro zamítnutí článku.
 3. Zobrazí se vyskakovací okno, pro zamítnutí klikněte na "OK", pokud si článek nepřejete zamítnout, klikněte na "Zrušit".
 4. Kliknutím na "OK" se článek zamítne a autor obdrží notifikaci o zamítnutí.
