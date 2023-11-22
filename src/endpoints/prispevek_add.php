@@ -61,7 +61,9 @@ $prispevekVersion = $_POST["prispevekVersion"];
 $prispevekAuthorIds = $_POST["prispevekAuthorIds"];
 
 // V případě, že přijde pouze jediné ID, je potřeba jej převést na array, aby přes něj šlo iterovat
-if (!is_array($prispevekAuthorIds)) {
+if (is_string($prispevekAuthorIds)) {
+    $prispevekAuthorIds = explode(",", $prispevekAuthorIds);
+} else if (!is_array($prispevekAuthorIds)) {
     $prispevekAuthorIds = [$prispevekAuthorIds];
 }
 
@@ -109,7 +111,7 @@ try {
 
 
     $queryPrispevekVer = "INSERT INTO PRISPEVEKVER (VERZE, NAZEV, CESTA, ID_PRISPEVKU) VALUES (?, ?, ?, ?)";
-    
+
     $stmtPrispevekVer = $mysqli->prepare($queryPrispevekVer);
     $stmtPrispevekVer->bind_param("issi", $prispevekVersion, $prispevekName, $prispevekFileName, $prispevekId);
     $resultPrispevekVer = $stmtPrispevekVer->execute();
@@ -125,7 +127,7 @@ try {
     }
 
     foreach ($prispevekAuthorIds as $authorId) {
-        $resultAuthor = $mysqli->query("INSERT INTO AUTORI (ID_OSOBY, ID_PRISPEVKU, VERZE) VALUES ({$authorId}, {$prispevekId}, {$prispevekVersion})");
+        $resultAuthor = $mysqli->query("INSERT INTO AUTORI (ID_OSOBY, ID_PRISPEVKU, VERZE) VALUES ($authorId, $prispevekId, $prispevekVersion)");
 
         if (!$resultAuthor) {
             // Vložení autorství selhalo

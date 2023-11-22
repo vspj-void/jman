@@ -7,7 +7,8 @@ require_once "classes/session_info.php";
 
 $mysqli = DbConnect::connect();
 
-$query = "SELECT C.*, 0 AS `POCET_PRISPEVKU`, COUNT(P.ID) AS `POCET_PRISPEVKU_ZAJEM` FROM CASOPIS AS C
+$query = "SELECT C.*, 0 AS `POCET_PRISPEVKU`, COUNT(P.ID) AS `POCET_PRISPEVKU_ZAJEM`
+          FROM CASOPIS AS C
           INNER JOIN PRISPEVEK AS P
           ON P.ID_CASOPISU = C.ID
           WHERE P.STAV = 1
@@ -36,6 +37,29 @@ if (isset($_POST["articleSubmit"])) {
 
 ?>
 
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+    </symbol>
+    <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
+    </symbol>
+    <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+    </symbol>
+</svg>
+
+<?php if (isset($_GET["article-success-title"])) : ?>
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:">
+            <use xlink:href="#check-circle-fill" />
+        </svg>
+        <div>
+            Článek '<?= $_GET["article-success-title"]; ?>' byl úspěšně vložen.
+        </div>
+    </div>
+<?php endif ?>
+
 <?php
 // Přidaný kód pro řazení a vyhledávání
 $searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
@@ -43,18 +67,27 @@ $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'NAZEV'; // defaultní řazení
 $sortOrder = isset($_GET['order']) && strtoupper($_GET['order']) === 'DESC' ? 'DESC' : 'ASC';
 
 // Dotaz pro získání článků s možností řazení
-$queryArticles = "SELECT PV.*, O.JMENO as AUTOR_JMENO, O.PRIJMENI as AUTOR_PRIJMENI, C.TEMA as CASOPIS_TEMA 
-                  FROM PRISPEVEKVER PV
-                  INNER JOIN PRISPEVEK P ON PV.ID_PRISPEVKU = P.ID
-                  INNER JOIN AUTORI A ON P.ID = A.ID_PRISPEVKU
-                  INNER JOIN OSOBA O ON A.ID_OSOBY = O.ID
-                  INNER JOIN CASOPIS C ON P.ID_CASOPISU = C.ID
-                  WHERE O.ID = " . SessionInfo::getLoggedOsoba()->getId();
+$queryArticlesBase = "WITH AUTOROVY_PRISPEVKY AS (
+    SELECT P.*
+  FROM AUTORI A
+  INNER JOIN PRISPEVEK P ON A.ID_PRISPEVKU = P.ID
+  WHERE A.ID_OSOBY = " . SessionInfo::getLoggedOsoba()->getId() . (isset($_GET['statusFilter']) && $_GET['statusFilter'] != 'all' ? (" AND P.STAV = " . $_GET['statusFilter']) : "") .  "
+)
+SELECT PV.*, GROUP_CONCAT(CONCAT(O.JMENO, ' ', O.PRIJMENI) SEPARATOR ', ') as AUTORSKY_TYM, C.TEMA as CASOPIS_TEMA, P.STAV 
+FROM PRISPEVEKVER PV
+INNER JOIN AUTOROVY_PRISPEVKY P ON PV.ID_PRISPEVKU = P.ID
+INNER JOIN AUTORI A ON P.ID = A.ID_PRISPEVKU
+INNER JOIN OSOBA O ON A.ID_OSOBY = O.ID
+INNER JOIN CASOPIS C ON P.ID_CASOPISU = C.ID
+GROUP BY P.ID, PV.VERZE";
 
 // Pokud je zadán vyhledávací termín
 if (!empty($searchTerm)) {
-    $queryArticles .= " AND PV.NAZEV LIKE '%$searchTerm%'";
+    $queryArticlesBase = "SELECT * FROM ($queryArticlesBase) AS ZPV
+                          WHERE ZPV.NAZEV LIKE '%$searchTerm%' OR AUTORSKY_TYM LIKE '%$searchTerm%'";
 }
+
+$queryArticles = $queryArticlesBase;
 
 $mysqli = DbConnect::connect();
 $queryArticles .= " ORDER BY $sortBy $sortOrder LIMIT $offset, $articlesPerPage";
@@ -64,6 +97,14 @@ $resultArticles = $mysqli->query($queryArticles);
 ?>
 
 <div class="container mt-4">
+    <div class="jumbotron">
+        <h1 class="display-4">Autor</h1>
+        <p class="lead">Moje články</p>
+        <hr class="my-4">
+    </div>
+</div>
+<br />
+<div class="container mt-4">
     <div class="row">
         <div class="col-md-6">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPrispevekModal">Nový článek</button>
@@ -71,7 +112,7 @@ $resultArticles = $mysqli->query($queryArticles);
         <div class="col-md-6">
             <form method="GET" action="?page=<?= $page; ?>" class="row input-group mb-3">
                 <div class="col-6"> <!--šířka vyhledávacího pole-->
-                    <input type="text" class="form-control" id="searchInput" name="search" placeholder="Zadejte název článku">
+                    <input type="text" class="form-control" id="searchInput" name="search" placeholder="Zadejte název článku, nebo příjmení autora">
                 </div>
                 <div class="col-6">
                     <button type="submit" class="btn btn-primary btn-block">Vyhledat</button>
@@ -85,9 +126,25 @@ $resultArticles = $mysqli->query($queryArticles);
             <tr>
                 <!-- Odkazy na řazení -->
                 <th scope="col"><a href="?page=<?= $page; ?>&sort=NAZEV&order=<?= ($sortBy === 'NAZEV' && $sortOrder === 'ASC') ? 'DESC' : 'ASC'; ?>">Název</a></th>
-                <th scope="col"><a href="?page=<?= $page; ?>&sort=AUTOR_PRIJMENI&order=<?= ($sortBy === 'AUTOR_PRIJMENI' && $sortOrder === 'ASC') ? 'DESC' : 'ASC'; ?>">Autor</a></th>
+                <th scope="col"><a href="?page=<?= $page; ?>&sort=AUTORSKY_TYM&order=<?= ($sortBy === 'AUTORSKY_TYM' && $sortOrder === 'ASC') ? 'DESC' : 'ASC'; ?>">Autor</a></th>
                 <th scope="col"><a href="?page=<?= $page; ?>&sort=TEMA&order=<?= ($sortBy === 'TEMA' && $sortOrder === 'ASC') ? 'DESC' : 'ASC'; ?>">Téma časopisu</a></th>
                 <th scope="col">Otevřít článek</th>
+                <th scope="col">
+                    <div class="d-flex align-items-end">
+                        Stav
+                        <div class="dropdown ms-3">
+                            <button class="btn btn-secondary " type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-filter"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <li><a class="dropdown-item" href="?statusFilter=all">Všechny</a></li>
+                                <li><a class="dropdown-item" href="?statusFilter=1">Nově podaný</a></li>
+                                <li><a class="dropdown-item" href="?statusFilter=0">Zveřejněný</a></li>
+                                <li><a class="dropdown-item" href="?statusFilter=-1">Zamítnutý</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -95,9 +152,26 @@ $resultArticles = $mysqli->query($queryArticles);
             while ($rowArticle = $resultArticles->fetch_assoc()) : ?>
                 <tr>
                     <td><?= !empty($rowArticle["NAZEV"]) ? $rowArticle["NAZEV"] : "Název není k dispozici"; ?></td>
-                    <td><?= isset($rowArticle["AUTOR_JMENO"]) && isset($rowArticle["AUTOR_PRIJMENI"]) ? $rowArticle["AUTOR_JMENO"] . " " . $rowArticle["AUTOR_PRIJMENI"] : "Autor není k dispozici"; ?></td>
+                    <td><?= isset($rowArticle["AUTORSKY_TYM"]) ? $rowArticle["AUTORSKY_TYM"] : "Autor není k dispozici"; ?></td>
                     <td><?= !empty($rowArticle["CASOPIS_TEMA"]) ? $rowArticle["CASOPIS_TEMA"] : "Téma není k dispozici"; ?></td>
                     <td><a href="<?= isset($rowArticle["CESTA"]) ? (UPLOAD_ARTICLES_URL . "/") . $rowArticle["CESTA"] : "#"; ?>" class="btn btn-primary" target="_blank">Otevřít článek</a></td>
+                    <td>
+                        <?php
+                        switch ($rowArticle["STAV"]) {
+                            case 1:
+                                echo "Nově podaný";
+                                break;
+                            case 0:
+                                echo "Zveřejněný";
+                                break;
+                            case -1:
+                                echo "Zamítnutý";
+                                break;
+                            default:
+                                echo "V procesu";
+                        }
+                        ?>
+                    </td>
                 </tr>
             <?php endwhile; ?>
         </tbody>
@@ -129,12 +203,10 @@ $resultArticles = $mysqli->query($queryArticles);
 <div class="container">
     <ul class="pagination justify-content-center">
         <?php
-        $totalArticlesQuery = "SELECT COUNT(*) as total FROM PRISPEVEKVER PV
-                               INNER JOIN PRISPEVEK P ON PV.ID_PRISPEVKU = P.ID
-                               INNER JOIN AUTORI A ON P.ID = A.ID_PRISPEVKU
-                               WHERE P.STAV = 1";
+        $totalArticlesQuery = "SELECT COUNT(*) total FROM ($queryArticlesBase) articles";
         $totalArticlesResult = $mysqli->query($totalArticlesQuery);
         $totalArticles = $totalArticlesResult->fetch_assoc()['total'];
+
         $totalPages = ceil($totalArticles / $articlesPerPage);
 
         for ($i = 1; $i <= $totalPages; $i++) :
@@ -304,8 +376,11 @@ $resultArticles = $mysqli->query($queryArticles);
                         return;
                     }
 
-                    $("#addPrispevekForm").trigger("reset");
-                    $("#addPrispevekModal").modal("hide");
+                    // Reloadni stránku s upozorněním, že byl článek vložen.
+                    window.location.assign(`?article-success-title=${formData.get("prispevekName")}`);
+
+                    // $("#addPrispevekForm").trigger("reset");
+                    // $("#addPrispevekModal").modal("hide");
                 },
                 error: function(error) {
                     console.error("Error:", error.responseText);
@@ -349,7 +424,8 @@ $resultArticles = $mysqli->query($queryArticles);
                 url: "endpoints/autor_search.php",
                 data: {
                     queryJmeno: $("#queryJmeno").val(),
-                    queryPrijmeni: $("#queryPrijmeni").val()
+                    queryPrijmeni: $("#queryPrijmeni").val(),
+                    idFilter: loggedOsobaId,
                 },
                 dataType: "json",
                 success: function(response) {
@@ -360,6 +436,30 @@ $resultArticles = $mysqli->query($queryArticles);
                 }
             });
         });
+
+        const addCoauthor = (osoba) => {
+            const selectedAutorList = $("#coauthorsList");
+            const listItem = $(
+                "<li class='list-group-item d-flex justify-content-between align-items-start'>" +
+                "<div class='ms-2 me-auto'>" +
+                "<div class='fw-bold'>" + osoba.JMENO + " " + osoba.PRIJMENI + "</div>" +
+                osoba.MAIL +
+                "</div>" +
+                `<button class='btn btn-danger' data-osoba-id='${osoba.ID}'>-</button>` +
+                "</li>");
+
+            selectedAutorList.append(listItem);
+
+            // Přidej click event pro tlačítko smazání
+            listItem.find(".btn-danger").click(function() {
+                const osobaId = $(this).data("osoba-id");
+
+                spoluautoriIds.delete(osobaId);
+                console.log("Odebírám ze seznamu autorů:", osobaId, Array.from(spoluautoriIds));
+
+                listItem.remove();
+            });
+        };
 
         // Zobraz výsledky vyhledávání
         function displaySearchResults(results) {
@@ -377,7 +477,7 @@ $resultArticles = $mysqli->query($queryArticles);
                         "<div class='fw-bold'>" + osoba.JMENO + " " + osoba.PRIJMENI + "</div>" +
                         osoba.MAIL +
                         "</div>" +
-                        `<button class='btn btn-success' data-osoba-id='${osoba.ID}'>+</button>` +
+                        `<button class='btn btn-success' data-osoba-id='${osoba.ID}' data-osoba-jmeno='${osoba.JMENO}' data-osoba-prijmeni='${osoba.PRIJMENI}' data-osoba-mail='${osoba.MAIL}'>+</button>` +
                         "</li>"
                     );
 
@@ -387,8 +487,19 @@ $resultArticles = $mysqli->query($queryArticles);
                     // Přidej click event pro tlačítko smazání
                     listItem.find(".btn-success").click(function() {
                         const osobaId = $(this).data("osoba-id");
-                        spoluautoriIds.add(osobaId);
-                        console.log("Seznam autorů:", Array.from(spoluautoriIds));
+
+                        if (!spoluautoriIds.has(osobaId)) {
+                            addCoauthor({
+                                ID: $(this).data("osoba-id"),
+                                JMENO: $(this).data("osoba-jmeno"),
+                                PRIJMENI: $(this).data("osoba-prijmeni"),
+                                MAIL: $(this).data("osoba-mail")
+                            });
+
+                            spoluautoriIds.add(osobaId);
+                            console.log("Přidávám do seznamu autorů:", osobaId, Array.from(spoluautoriIds));
+                        }
+
                         searchResultsContainer.empty();
                         $("#searchAutorForm").trigger("reset");
                         $("#searchAutorModal").modal("hide");
