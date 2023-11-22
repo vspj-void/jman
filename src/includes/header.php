@@ -6,14 +6,31 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
+            <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+            <?php if (isset($_SESSION[SESSION_VAR_USER_ROLE])) : ?>
+                <?php if ($_SESSION[SESSION_VAR_USER_ROLE] == 'Autor') : ?>
                     <li class="nav-item">
                         <a class="nav-link" href="user-article.php">Moje články</a>
                     </li>
+                <?php endif; ?>
+
+                <?php if ($_SESSION[SESSION_VAR_USER_ROLE] == 'Recenzent') : ?>
+                    <!-- Menu pro Recenzenta -->
+                <?php endif; ?>
+
+                <?php if ($_SESSION[SESSION_VAR_USER_ROLE] == 'Redaktor') : ?>
                     <li class="nav-item">
                         <a class="nav-link" href="redaktor-article.php">Nové články</a>
                     </li>
-                </ul>
+                    <li class="nav-item">
+                        <a class="nav-link" href="redaktor-article-complete-list.php">Přehled všech článků</a>
+                    </li>
+                <?php endif; ?>
+
+                <!-- Přidat další podmínky pro další role -->
+            <?php endif; ?>
+        </ul>
                 <form class="d-flex">
             <?php if (isset($_SESSION["username"])) : ?>
                 <span class="navbar-text">
@@ -46,7 +63,15 @@
                 <form id="loginForm">
                     <div class="row g-3">
                         <div class="col-md-12">
-                            <label for="username">Uživatelské jméno (j:testuser h:testuser)</label>
+                            <label for="username">
+                            <u>Přehled testovacích uživatelů (login/heslo)</u><br>
+                            testuser/testuser (role: autor)<br>
+                            testAutor/autor123<br>
+                            testRedaktor/redaktor123<br>
+                            testRecenzent/recenzent123<br><brn><br>
+                                                     
+                                                       
+                            Uživatelské jméno:</label>
                             <input type="text" class="form-control" id="username" placeholder="Uživatelské jméno" required>
                         </div>
                         <div class="col-md-12">
