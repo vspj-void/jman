@@ -3,7 +3,7 @@
 
 require_once "../includes/db_connect.php";
 
-if ($_SERVER["REQUEST_METHOD"] != "POST" || (!isset($_POST["queryJmeno"]) && !isset($_POST["queryPrijmeni"]))) {
+if ($_SERVER["REQUEST_METHOD"] != "POST" || (!isset($_POST["idFilter"]) && !isset($_POST["queryJmeno"]) && !isset($_POST["queryPrijmeni"]))) {
     // Invalid request
     header('HTTP/1.1 400 Bad Request');
     echo "Invalid request.";
@@ -11,6 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] != "POST" || (!isset($_POST["queryJmeno"]) && !is
 
 $searchTermJmeno = $_POST["queryJmeno"] ?? "";
 $searchTermPrijmeni = $_POST["queryPrijmeni"] ?? "";
+$idFilter = $_POST["idFilter"];
 
 $mysqli = DbConnect::connect();
 
@@ -18,7 +19,7 @@ $mysqli = DbConnect::connect();
 $query = "SELECT OSOBA.ID, OSOBA.MAIL, OSOBA.JMENO, OSOBA.PRIJMENI
           FROM OSOBA
           LEFT JOIN PROFIL ON OSOBA.LOGIN = PROFIL.LOGIN
-          WHERE (OSOBA.LOGIN IS NULL OR PROFIL.ROLE = 1) AND OSOBA.JMENO LIKE ? AND OSOBA.PRIJMENI LIKE ?";
+          WHERE (OSOBA.LOGIN IS NULL OR PROFIL.ROLE = 1) AND OSOBA.ID != $idFilter AND OSOBA.JMENO LIKE ? AND OSOBA.PRIJMENI LIKE ?";
 $stmt = $mysqli->prepare($query);
 
 $searchTermJmeno = "%{$searchTermJmeno}%";
