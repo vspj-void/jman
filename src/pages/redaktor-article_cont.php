@@ -2,6 +2,7 @@
 <?php
 require_once "includes/db_connect.php";
 require_once "classes/profil.php";
+require_once "classes/session_info.php";
 
 $articlesPerPage = 20;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -32,19 +33,36 @@ if (isset($_GET['action']) && $_GET['action'] == 'publishArticle' && isset($_GET
     exit();
 }
 
-if (isset($_POST["articleSubmit"])) {
-    $articleName = $_POST["articleName"];
-    $articleFile = $_FILES["articleFile"];
-    // var_dump($articleFile);
-}
 
 // Zpracování akce zamítnutí článku
 if (isset($_GET['action']) && $_GET['action'] == 'rejectArticle' && isset($_GET['articleId'])) {
     $articleId = $_GET['articleId'];
-
     // Aktualizovat stav článku na -1 (zamítnutí článku)
     $updateStatusQuery = "UPDATE PRISPEVEK SET STAV = -1 WHERE ID = $articleId";
     $mysqli->query($updateStatusQuery);
+
+    // vlozeni zpravy pro autora do db
+    $loggedUser = SessionInfo::getLoggedOsoba();
+    $qeuryArticleName = "SELECT NAZEV FROM PRISPEVEKVER WHERE ID_PRISPEVKU = " . $articleId . " ORDER BY VERZE DESC LIMIT 1";
+    $resultArticleName = $mysqli->query($qeuryArticleName);
+    $rowArticleName = $resultArticleName->fetch_assoc();
+    $articleName = $rowArticleName['NAZEV'];
+    $queryAutorIDs = "SELECT A.ID_OSOBY FROM AUTORI A JOIN OSOBA O ON A.ID_OSOBY=O.ID WHERE ID_PRISPEVKU=" . $articleId . " AND O.LOGIN IS NOT NULL";
+    $resultAutorIDs = $mysqli->query($queryAutorIDs);
+    
+    $od = $loggedUser->getId();
+    $predmet = "Zamítnutí článku: " . $articleName;
+    $text = "Váš článek " . $articleName . " byl zamítnut.";
+
+    if ($resultAutorIDs) {
+        while ($row = $resultAutorIDs->fetch_assoc()) {
+            $autorId = $row['ID_OSOBY'];         
+            $queryInsertZprava = "INSERT INTO ZPRAVY (OD, KOMU, PREDMET, TEXT) VALUES (?, ?, ?, ?)";
+            $stmt = $mysqli->prepare($queryInsertZprava);
+            $stmt->bind_param("iiss",  $od, $autorId, $predmet, $text);
+            $stmt->execute();
+        }
+    }
     //Zabraňuje vypsání chyby, že článek už byl odeslán.
     if (!headers_sent()) {
         header('Location: redaktor-article.php');
@@ -60,7 +78,14 @@ if (isset($_GET['action']) && $_GET['action'] == 'rejectArticle' && isset($_GET[
     exit();
 }
 
+if (isset($_POST["articleSubmit"])) {
+    $articleName = $_POST["articleName"];
+    $articleFile = $_FILES["articleFile"];
+    // var_dump($articleFile);
+}
+
 ?>
+
 
 <div class="container mt-4">
     <div class="jumbotron">
