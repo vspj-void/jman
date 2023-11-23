@@ -23,8 +23,13 @@ Vítejte v uživatelské dokumentaci k systému časopisu Křídlo. Tento dokume
 
 Pro přihlášení do systému postupujte následovně:
 
-1. ...
-2. ...
+1. Na výchozí stránce časopisu je v pravém horním rohu tlačítko "Přihlášení"
+2. Po vyplnění "Uživatelského jména" a "Hesla" se údaje potvruzjí modrým tlačítkem "Přihlásit se"
+3. Při nesprávně zadaných údajích je uživatel informován vyskakovací notifikací.
+4. Při správně zadaných údajích je uživateli zobrazena úvodní stránka. Menu poté odpovídá roli přihlášeního uživatele
+5. Informace k jednotlivým rolím následují v dokumentaci níže
+
+Po ukončení práce na stránce má uživatel možnost se odhlásit tlačítkem "Odhlásit se" v pravém horním rohu. Uživatel je poté odhlášen a přesměrován na úvodní stránku pro nepřihlášené uživatele.
 
 === Přehled vydaných článků
 
@@ -101,3 +106,25 @@ Pro zamítnutí článku postupujte následnovně:
 2. Zobrazí se seznam nových článků. Klikněte na červené tlačítko "Zamítnout článek" pro zamítnutí článku.
 3. Zobrazí se vyskakovací okno, pro zamítnutí klikněte na "OK", pokud si článek nepřejete zamítnout, klikněte na "Zrušit".
 4. Kliknutím na "OK" se článek zamítne a autor obdrží notifikaci o zamítnutí.
+
+=== Archivace článků - Autor - přidání nové verze
+IMPORTANT: Funkce vyžaduje přihlášení a uživatelskou roli *AUTOR*
+
+Funkce slouží autorovi k přidání nové verze článku. Je dostupná na záložce "Moje články". Pro nahrání nové verze článku slouží tlačítko "Editovat" v příslušném řádku seznamu článků.
+
+1. Na hlavním menu zvole záložku "Moje články".
+2. V seznamu článků u článku, který chcete revidovat klidněte ve sloupci "Verze" na modré tlačítko "Editovat".
+3. Zobrazí se vyskakovací okno, je možné změnit název článku. Obsah nové revize nahrajete přiložením souboru pomocí šedého tlačítka "Zvolit soubor".
+4. Potvrzením pomocí modrého tlačítka "Uložit změny" dojde k nahrání nové verze článku.
+5. V seznamu článků se inkrementuje čítač verze a pod možností "Otevřít článek" bude dostupná nejnovější nahraná verze článku.
+
+=== Archivace článků - Redaktor - přehled verzí článků
+IMPORTANT: Funkce vyžaduje přihlášení a uživatelskou roli *REDAKTOR*
+
+Funkce slouží redaktorovi k přehledu o počtu revizí jednotlivých článků, dále má možnost pro každý článek zjistit historii verzí, včetně jejich plných znění.
+
+1. Na hlavním menu zvole záložku "Přehled všech článků".
+2. V seznamu článků je sloupec "Verze" obsahující číslo a modré tlačítko "Zobrazit verze".
+3. Číslo udává kolikátá revize článku je nejnovější.
+4. Tlačítkem "Zobrazit verze" dojde k přesměrování na nový seznam, kde jsou vypsané sestupně všechny verze zvoleného článku.
+5. K dispozici je i soubor, který byl přiložený při vytváření verze autorem pomocí tlačítka "Otevřít článek".
