@@ -106,12 +106,30 @@
     $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'NAZEV';
     $sortOrder = isset($_GET['order']) && strtoupper($_GET['order']) === 'DESC' ? 'DESC' : 'ASC';
 
-    $queryArticles = "SELECT PV.*, O.JMENO as AUTOR_JMENO, O.PRIJMENI as AUTOR_PRIJMENI, C.TEMA as CASOPIS_TEMA, P.STAV 
+/*    $queryArticles = "SELECT PV.*, O.JMENO as AUTOR_JMENO, O.PRIJMENI as AUTOR_PRIJMENI, C.TEMA as CASOPIS_TEMA, P.STAV 
                     FROM PRISPEVEKVER PV
                     INNER JOIN PRISPEVEK P ON PV.ID_PRISPEVKU = P.ID
                     INNER JOIN AUTORI A ON P.ID = A.ID_PRISPEVKU
                     INNER JOIN OSOBA O ON A.ID_OSOBY = O.ID
                     INNER JOIN CASOPIS C ON P.ID_CASOPISU = C.ID";
+*/
+    $queryArticles = "SELECT PV.*,
+                             O.JMENO as AUTOR_JMENO,
+                             O.PRIJMENI as AUTOR_PRIJMENI,
+                             C.TEMA as CASOPIS_TEMA,
+                             P.STAV 
+                         FROM PRISPEVEKVER PV
+                         INNER JOIN
+                           (SELECT PRI.ID_PRISPEVKU,
+                                   MAX(PRI.VERZE) as MAX_VERZE
+                              FROM PRISPEVEKVER PRI
+                             GROUP BY ID_PRISPEVKU) AS NEJNOVEJSI_VERZE
+                             ON (    PV.ID_PRISPEVKU = NEJNOVEJSI_VERZE.ID_PRISPEVKU 
+                                 AND PV.VERZE = NEJNOVEJSI_VERZE.MAX_VERZE )
+                         INNER JOIN PRISPEVEK P ON PV.ID_PRISPEVKU = P.ID
+                         INNER JOIN AUTORI A ON P.ID = A.ID_PRISPEVKU
+                         INNER JOIN OSOBA O ON A.ID_OSOBY = O.ID
+                         INNER JOIN CASOPIS C ON P.ID_CASOPISU = C.ID";
 
     if (!empty($searchTerm)) {
         $queryArticles .= " AND (PV.NAZEV LIKE '%$searchTerm%' OR O.PRIJMENI LIKE '%$searchTerm%')";
@@ -162,6 +180,7 @@
                             </div>
                         </div>
                     </th>
+                    <th scope="col">Verze</th>
                     <th scope="col">Akce</th>
                 </tr>
             </thead>
@@ -188,6 +207,11 @@
                                     echo "V procesu";
                             }
                             ?>
+                        </td>
+                        <td>
+                          <?= $rowArticle["VERZE"]; ?>
+                          <!-- Přidání tlačítka pro zobrazení všech verzí -->
+                          <a href="redaktor-one-article-all-versions.php?articleId=<?= $rowArticle['ID_PRISPEVKU']; ?>" class="btn btn-info btn-sm">Zobrazit verze</a>
                         </td>
                         <td>
                             <?php
