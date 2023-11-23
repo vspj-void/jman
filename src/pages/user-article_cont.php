@@ -7,12 +7,17 @@ require_once "classes/session_info.php";
 
 $mysqli = DbConnect::connect();
 
-$query = "SELECT C.*, 0 AS `POCET_PRISPEVKU`, COUNT(P.ID) AS `POCET_PRISPEVKU_ZAJEM`
-          FROM CASOPIS AS C
-          INNER JOIN PRISPEVEK AS P
-          ON P.ID_CASOPISU = C.ID
-          WHERE P.STAV = 1
-          GROUP BY P.ID_CASOPISU";
+$query = "
+SELECT
+    C.*,
+    0 AS POCET_PRISPEVKU,
+    COUNT(P.ID) AS POCET_PRISPEVKU_ZAJEM
+FROM
+    CASOPIS AS C
+LEFT JOIN
+    PRISPEVEK AS P ON P.ID_CASOPISU = C.ID
+GROUP BY
+    P.ID_CASOPISU";
 $result = $mysqli->query($query);
 
 if (!$result) {

@@ -50,14 +50,14 @@
         $articleName = $rowArticleName['NAZEV'];
         $queryAutorIDs = "SELECT A.ID_OSOBY FROM AUTORI A JOIN OSOBA O ON A.ID_OSOBY=O.ID WHERE ID_PRISPEVKU=" . $articleId . " AND O.LOGIN IS NOT NULL";
         $resultAutorIDs = $mysqli->query($queryAutorIDs);
-        
+
         $od = $loggedUser->getId();
         $predmet = "Zamítnutí článku: " . $articleName;
         $text = "Váš článek " . $articleName . " byl zamítnut.";
 
         if ($resultAutorIDs) {
             while ($row = $resultAutorIDs->fetch_assoc()) {
-                $autorId = $row['ID_OSOBY'];         
+                $autorId = $row['ID_OSOBY'];
                 $queryInsertZprava = "INSERT INTO ZPRAVY (OD, KOMU, PREDMET, TEXT) VALUES (?, ?, ?, ?)";
                 $stmt = $mysqli->prepare($queryInsertZprava);
                 $stmt->bind_param("iiss",  $od, $autorId, $predmet, $text);
@@ -88,7 +88,7 @@
             <hr class="my-4">
         </div>
     </div>
-    <br/>
+    <br />
     <div class="container mt-6 d-flex align-items-center">
         <form method="GET" action="?page=<?= $page; ?>" class="row">
             <label for="searchInput" class="col-md-4">Vyhledejte si článek:</label>
@@ -102,45 +102,60 @@
     </div>
 
     <?php
-    $searchTerm = isset($_GET['search']) ? $_GET['search'] : ''; 
+    $searchTerm = isset($_GET['search']) ? strval($_GET['search']) : null;
+    $statusFilter = isset($_GET['statusFilter']) && $_GET['statusFilter'] != 'all' ? strval($_GET['statusFilter']) : null; // filtr na Stav
     $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'NAZEV';
     $sortOrder = isset($_GET['order']) && strtoupper($_GET['order']) === 'DESC' ? 'DESC' : 'ASC';
 
-/*    $queryArticles = "SELECT PV.*, O.JMENO as AUTOR_JMENO, O.PRIJMENI as AUTOR_PRIJMENI, C.TEMA as CASOPIS_TEMA, P.STAV 
-                    FROM PRISPEVEKVER PV
-                    INNER JOIN PRISPEVEK P ON PV.ID_PRISPEVKU = P.ID
-                    INNER JOIN AUTORI A ON P.ID = A.ID_PRISPEVKU
-                    INNER JOIN OSOBA O ON A.ID_OSOBY = O.ID
-                    INNER JOIN CASOPIS C ON P.ID_CASOPISU = C.ID";
-*/
-    $queryArticles = "SELECT PV.*,
-                             O.JMENO as AUTOR_JMENO,
-                             O.PRIJMENI as AUTOR_PRIJMENI,
-                             C.TEMA as CASOPIS_TEMA,
-                             P.STAV 
-                         FROM PRISPEVEKVER PV
-                         INNER JOIN
-                           (SELECT PRI.ID_PRISPEVKU,
-                                   MAX(PRI.VERZE) as MAX_VERZE
-                              FROM PRISPEVEKVER PRI
-                             GROUP BY ID_PRISPEVKU) AS NEJNOVEJSI_VERZE
-                             ON (    PV.ID_PRISPEVKU = NEJNOVEJSI_VERZE.ID_PRISPEVKU 
-                                 AND PV.VERZE = NEJNOVEJSI_VERZE.MAX_VERZE )
-                         INNER JOIN PRISPEVEK P ON PV.ID_PRISPEVKU = P.ID
-                         INNER JOIN AUTORI A ON P.ID = A.ID_PRISPEVKU
-                         INNER JOIN OSOBA O ON A.ID_OSOBY = O.ID
-                         INNER JOIN CASOPIS C ON P.ID_CASOPISU = C.ID";
+    $queryArticlesBase = "
+    WITH NEJNOVEJSI_VERZE AS (
+        SELECT
+            PRI.ID_PRISPEVKU,
+            MAX(PRI.VERZE) AS MAX_VERZE
+        FROM
+            PRISPEVEKVER PRI
+        GROUP BY
+            ID_PRISPEVKU
+    )
+    SELECT
+        PV.*,
+        GROUP_CONCAT(CONCAT(O.JMENO, ' ', O.PRIJMENI) SEPARATOR ', ') AS AUTORSKY_TYM,
+        C.TEMA AS CASOPIS_TEMA,
+        P.STAV
+    FROM
+        PRISPEVEKVER PV
+        INNER JOIN NEJNOVEJSI_VERZE ON (PV.ID_PRISPEVKU = NEJNOVEJSI_VERZE.ID_PRISPEVKU AND PV.VERZE = NEJNOVEJSI_VERZE.MAX_VERZE)
+        INNER JOIN PRISPEVEK P ON PV.ID_PRISPEVKU = P.ID
+        INNER JOIN AUTORI A ON P.ID = A.ID_PRISPEVKU
+        INNER JOIN OSOBA O ON A.ID_OSOBY = O.ID
+        INNER JOIN CASOPIS C ON P.ID_CASOPISU = C.ID
+    GROUP BY
+        P.ID,
+        PV.VERZE";
 
-    if (!empty($searchTerm)) {
-        $queryArticles .= " AND (PV.NAZEV LIKE '%$searchTerm%' OR O.PRIJMENI LIKE '%$searchTerm%')";
+
+    // Pokud je zadán vyhledávací termín
+    if (!is_null($searchTerm) || !is_null($statusFilter)) {
+        $searchCondition = "";
+
+        if (!is_null($searchTerm)) {
+            $searchCondition .= "ZPV.NAZEV LIKE '%$searchTerm%' OR AUTORSKY_TYM LIKE '%$searchTerm%'";
+        }
+
+        if (!is_null($statusFilter)) {
+            if (!is_null($searchTerm)) {
+                $searchCondition .= " AND ";
+            }
+
+            $searchCondition .= " ZPV.STAV = $statusFilter";
+        }
+
+        $queryArticlesBase = "
+            SELECT * FROM ($queryArticlesBase) AS ZPV
+            WHERE $searchCondition";
     }
 
-    // filtr na Stav
-    if (isset($_GET['statusFilter']) && $_GET['statusFilter'] != 'all') {
-        $statusFilter = $_GET['statusFilter'];
-        $queryArticles .= " AND P.STAV = $statusFilter";
-    }
-
+    $queryArticles = $queryArticlesBase;
     $queryArticles .= " ORDER BY $sortBy $sortOrder LIMIT $offset, $articlesPerPage";
 
     $resultArticles = $mysqli->query($queryArticles);
@@ -148,12 +163,12 @@
     ?>
 
     <script type="text/javascript">
-    // potvrzovací okno na zveřejnění / zamítnutí článku
-    function confirmAction(url, message) {
-        if (confirm(message)) {
-            window.location.href = url;
+        // potvrzovací okno na zveřejnění / zamítnutí článku
+        function confirmAction(url, message) {
+            if (confirm(message)) {
+                window.location.href = url;
+            }
         }
-    }
     </script>
 
     <div class="container mt-4">
@@ -188,7 +203,7 @@
                 <?php while ($rowArticle = $resultArticles->fetch_assoc()) : ?>
                     <tr>
                         <td><?= !empty($rowArticle["NAZEV"]) ? $rowArticle["NAZEV"] : "Název není k dispozici"; ?></td>
-                        <td><?= isset($rowArticle["AUTOR_JMENO"]) && isset($rowArticle["AUTOR_PRIJMENI"]) ? $rowArticle["AUTOR_JMENO"] . " " . $rowArticle["AUTOR_PRIJMENI"] : "Autor není k dispozici"; ?></td>
+                        <td><?= isset($rowArticle["AUTORSKY_TYM"]) && isset($rowArticle["AUTORSKY_TYM"]) ? $rowArticle["AUTORSKY_TYM"] : "Autor není k dispozici"; ?></td>
                         <td><?= !empty($rowArticle["CASOPIS_TEMA"]) ? $rowArticle["CASOPIS_TEMA"] : "Téma není k dispozici"; ?></td>
                         <td><a href="<?= isset($rowArticle["CESTA"]) ? (UPLOAD_ARTICLES_URL . "/") . $rowArticle["CESTA"] : "#"; ?>" class="btn btn-primary" target="_blank">Otevřít článek</a></td>
                         <td>
@@ -209,9 +224,9 @@
                             ?>
                         </td>
                         <td>
-                          <?= $rowArticle["VERZE"]; ?>
-                          <!-- Přidání tlačítka pro zobrazení všech verzí -->
-                          <a href="redaktor-one-article-all-versions.php?articleId=<?= $rowArticle['ID_PRISPEVKU']; ?>" class="btn btn-info btn-sm">Zobrazit verze</a>
+                            <?= $rowArticle["VERZE"]; ?>
+                            <!-- Přidání tlačítka pro zobrazení všech verzí -->
+                            <a href="redaktor-one-article-all-versions.php?articleId=<?= $rowArticle['ID_PRISPEVKU']; ?>" class="btn btn-info btn-sm">Zobrazit verze</a>
                         </td>
                         <td>
                             <?php
@@ -251,12 +266,10 @@
     <div class="container">
         <ul class="pagination justify-content-center">
             <?php
-            $totalArticlesQuery = "SELECT COUNT(*) as total FROM PRISPEVEKVER PV
-                                INNER JOIN PRISPEVEK P ON PV.ID_PRISPEVKU = P.ID
-                                INNER JOIN AUTORI A ON P.ID = A.ID_PRISPEVKU
-                                WHERE P.STAV = 1";
+            $totalArticlesQuery = "SELECT COUNT(*) total FROM ($queryArticlesBase) articles";
             $totalArticlesResult = $mysqli->query($totalArticlesQuery);
             $totalArticles = $totalArticlesResult->fetch_assoc()['total'];
+
             $totalPages = ceil($totalArticles / $articlesPerPage);
 
             for ($i = 1; $i <= $totalPages; $i++) :
