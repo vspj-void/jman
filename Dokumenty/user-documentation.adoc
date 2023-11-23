@@ -58,7 +58,7 @@ Pro nabídnutí nového článku a jeho vložení do systému postupujte násled
 6. Pokud se na článku podílelo více autorů, uveďte i ostatní členy autorského týmu pomocí tlačítka "Vyhledat autora". Je možné, že daný autor prozatím nebude veden v evidenci časopisu Křídlo; v takovém případě využijte tlačítka "Přidat nového autora" a vyplňte jeho kontaktní údaje.
 7. Ujistěte se, že jste vyplnili všechny informace správně, a dokončete nabídnutí článku tlačítkem "Vložit článek".
 
-NOTE: Podporovanými formáty souboru článku jsou pouze dokumenty typu PDF a DOC(X).
+NOTE: Podporovanými formáty souboru článku jsou pouze dokumenty typu PDF a DOC(X). Název souboru nesmí obsahovat diakritiku, jako jsou háčky nebo čárky.
 
 === Nové články
 IMPORTANT: Funkce vyžaduje přihlášení a uživatelskou roli *REDAKTOR*.
