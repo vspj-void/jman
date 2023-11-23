@@ -60,31 +60,79 @@ if (isset($_POST["articleSubmit"])) {
     </div>
 <?php endif ?>
 
+<?php if (isset($_GET["version-success"])) : ?>
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:">
+            <use xlink:href="#check-circle-fill" />
+        </svg>
+        <div>
+            Nová verze článku byla úspěšně vložena.
+        </div>
+    </div>
+<?php endif ?>
+
 <?php
 // Přidaný kód pro řazení a vyhledávání
-$searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
+$searchTerm = isset($_GET['search']) ? strval($_GET['search']) : null;
+$statusFilter = isset($_GET['statusFilter']) && $_GET['statusFilter'] != 'all' ? strval($_GET['statusFilter']) : null; // filtr na Stav
 $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'NAZEV'; // defaultní řazení podle Názvu
 $sortOrder = isset($_GET['order']) && strtoupper($_GET['order']) === 'DESC' ? 'DESC' : 'ASC';
 
 // Dotaz pro získání článků s možností řazení
-$queryArticlesBase = "WITH AUTOROVY_PRISPEVKY AS (
-    SELECT P.*
-  FROM AUTORI A
-  INNER JOIN PRISPEVEK P ON A.ID_PRISPEVKU = P.ID
-  WHERE A.ID_OSOBY = " . SessionInfo::getLoggedOsoba()->getId() . (isset($_GET['statusFilter']) && $_GET['statusFilter'] != 'all' ? (" AND P.STAV = " . $_GET['statusFilter']) : "") .  "
+$queryArticlesBase = "
+WITH NEJNOVEJSI_VERZE AS (
+    SELECT
+        PRI.ID_PRISPEVKU,
+        MAX(PRI.VERZE) AS MAX_VERZE
+    FROM
+        PRISPEVEKVER PRI
+    GROUP BY
+        ID_PRISPEVKU
+),
+AUTOROVY_PRISPEVKY AS (
+    SELECT
+        P.*
+    FROM
+        AUTORI A
+        INNER JOIN PRISPEVEK P ON A.ID_PRISPEVKU = P.ID
+    WHERE
+        A.ID_OSOBY = " . SessionInfo::getLoggedOsoba()->getId() . " 
 )
-SELECT PV.*, GROUP_CONCAT(CONCAT(O.JMENO, ' ', O.PRIJMENI) SEPARATOR ', ') as AUTORSKY_TYM, C.TEMA as CASOPIS_TEMA, P.STAV 
-FROM PRISPEVEKVER PV
-INNER JOIN AUTOROVY_PRISPEVKY P ON PV.ID_PRISPEVKU = P.ID
-INNER JOIN AUTORI A ON P.ID = A.ID_PRISPEVKU
-INNER JOIN OSOBA O ON A.ID_OSOBY = O.ID
-INNER JOIN CASOPIS C ON P.ID_CASOPISU = C.ID
-GROUP BY P.ID, PV.VERZE";
+SELECT
+    PV.*,
+    GROUP_CONCAT(CONCAT(O.JMENO, ' ', O.PRIJMENI) SEPARATOR ', ') AS AUTORSKY_TYM,
+    C.TEMA AS CASOPIS_TEMA,
+    P.STAV
+FROM
+    PRISPEVEKVER PV
+    INNER JOIN NEJNOVEJSI_VERZE ON (PV.ID_PRISPEVKU = NEJNOVEJSI_VERZE.ID_PRISPEVKU AND PV.VERZE = NEJNOVEJSI_VERZE.MAX_VERZE)
+    INNER JOIN AUTOROVY_PRISPEVKY P ON PV.ID_PRISPEVKU = P.ID
+    INNER JOIN AUTORI A ON P.ID = A.ID_PRISPEVKU
+    INNER JOIN OSOBA O ON A.ID_OSOBY = O.ID
+    INNER JOIN CASOPIS C ON P.ID_CASOPISU = C.ID
+GROUP BY
+    P.ID,
+    PV.VERZE
+";
 
 // Pokud je zadán vyhledávací termín
-if (!empty($searchTerm)) {
+if (!is_null($searchTerm) || !is_null($statusFilter)) {
+    $searchCondition = "";
+
+    if (!is_null($searchTerm)) {
+        $searchCondition .= "ZPV.NAZEV LIKE '%$searchTerm%' OR AUTORSKY_TYM LIKE '%$searchTerm%'";
+    }
+
+    if (!is_null($statusFilter)) {
+        if (!is_null($searchTerm)) {
+            $searchCondition .= " AND ";
+        }
+
+        $searchCondition .= " ZPV.STAV = $statusFilter";
+    }
+
     $queryArticlesBase = "SELECT * FROM ($queryArticlesBase) AS ZPV
-                          WHERE ZPV.NAZEV LIKE '%$searchTerm%' OR AUTORSKY_TYM LIKE '%$searchTerm%'";
+                          WHERE $searchCondition";
 }
 
 $queryArticles = $queryArticlesBase;
@@ -128,6 +176,7 @@ $resultArticles = $mysqli->query($queryArticles);
                 <th scope="col"><a href="?page=<?= $page; ?>&sort=NAZEV&order=<?= ($sortBy === 'NAZEV' && $sortOrder === 'ASC') ? 'DESC' : 'ASC'; ?>">Název</a></th>
                 <th scope="col"><a href="?page=<?= $page; ?>&sort=AUTORSKY_TYM&order=<?= ($sortBy === 'AUTORSKY_TYM' && $sortOrder === 'ASC') ? 'DESC' : 'ASC'; ?>">Autor</a></th>
                 <th scope="col"><a href="?page=<?= $page; ?>&sort=TEMA&order=<?= ($sortBy === 'TEMA' && $sortOrder === 'ASC') ? 'DESC' : 'ASC'; ?>">Téma časopisu</a></th>
+                <th scope="col">Verze</th>
                 <th scope="col">Otevřít článek</th>
                 <th scope="col">
                     <div class="d-flex align-items-end">
@@ -151,9 +200,13 @@ $resultArticles = $mysqli->query($queryArticles);
             <?php $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'NAZEV'; // defaultní řazení podle Názvu
             while ($rowArticle = $resultArticles->fetch_assoc()) : ?>
                 <tr>
+                    <td style="display:none;"><?= $rowArticle["ID_PRISPEVKU"]; ?></td> <!-- Skryté pole pro ID -->
                     <td><?= !empty($rowArticle["NAZEV"]) ? $rowArticle["NAZEV"] : "Název není k dispozici"; ?></td>
                     <td><?= isset($rowArticle["AUTORSKY_TYM"]) ? $rowArticle["AUTORSKY_TYM"] : "Autor není k dispozici"; ?></td>
                     <td><?= !empty($rowArticle["CASOPIS_TEMA"]) ? $rowArticle["CASOPIS_TEMA"] : "Téma není k dispozici"; ?></td>
+                    <td><?= !empty($rowArticle["VERZE"]) ? $rowArticle["VERZE"] : "Verze není k dispozici"; ?>
+                        <button type="button" class="btn btn-info btn-sm open-modal" data-bs-toggle="modal" data-bs-target="#versionModal">Editovat</button>
+                    </td>
                     <td><a href="<?= isset($rowArticle["CESTA"]) ? (UPLOAD_ARTICLES_URL . "/") . $rowArticle["CESTA"] : "#"; ?>" class="btn btn-primary" target="_blank">Otevřít článek</a></td>
                     <td>
                         <?php
@@ -321,6 +374,77 @@ $resultArticles = $mysqli->query($queryArticles);
         </div>
     </div>
 </div>
+
+<!-- Modální okno pro nahrání nové verze -->
+<div class="modal fade" id="versionModal" tabindex="-1" aria-labelledby="versionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="versionModalLabel">Editace článku</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addVerzeForm" enctype="multipart/form-data">
+                    <input type="hidden" id="prispevekId" name="prispevekId">
+
+                    <div class="mb-3">
+                        <label for="prispevekName">Název článku</label>
+                        <input type="text" class="form-control" id="prispevekName" name="prispevekName" required>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label for="prispevekFile">Soubor článku</label>
+                        <input type="file" class="form-control" id="prispevekFile" name="prispevekFile" accept="application/pdf,.doc,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Uložit změny</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Předvyplnění modálního okna -->
+<script>
+    $(document).ready(function() {
+        $('.open-modal').click(function() {
+            var row = $(this).closest('tr');
+            var id = row.find('td:eq(0)').text();
+            var nazev = row.find('td:eq(1)').text();
+
+            $('#versionModal #prispevekId').val(id);
+            $('#versionModal #prispevekName').val(nazev);
+
+            $('#versionModal').modal('show');
+        });
+    });
+
+    $(document).ready(function() {
+        $('#addVerzeForm').on('submit', function(e) {
+            e.preventDefault();
+
+            var formData = new FormData(this);
+
+            $.ajax({
+                type: 'POST',
+                url: 'endpoints/prispevek_add_verze.php',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+
+                    // Reloadni stránku s upozorněním, že byla vložena nová verze článku.
+                    window.location.assign(`?version-success`);
+
+                    // $('#versionModal').modal('hide');
+                },
+                error: function() {
+                    alert('Došlo k chybě při aktualizaci dat');
+                }
+            });
+        });
+    });
+</script>
+
 
 <script>
     const loggedOsobaId = <?= SessionInfo::getLoggedOsoba()->getId(); ?>;
