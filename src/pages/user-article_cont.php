@@ -17,7 +17,7 @@ FROM
 LEFT JOIN
     PRISPEVEK AS P ON P.ID_CASOPISU = C.ID
 GROUP BY
-    P.ID_CASOPISU";
+    C.ID";
 $result = $mysqli->query($query);
 
 if (!$result) {
