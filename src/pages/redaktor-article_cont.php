@@ -116,6 +116,7 @@ $sortOrder = isset($_GET['order']) && strtoupper($_GET['order']) === 'DESC' ? 'D
 $queryArticlesBase = "
 SELECT
     DISTINCT PV.NAZEV,
+    PV.CESTA,
     PV.ID_PRISPEVKU,
     GROUP_CONCAT(CONCAT(O.JMENO, ' ', O.PRIJMENI) SEPARATOR ', ') AS AUTORSKY_TYM,
     C.TEMA AS CASOPIS_TEMA
