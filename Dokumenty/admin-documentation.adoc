@@ -1,0 +1,65 @@
+= Administrátorská dokumentace – Časopis Křídlo
+:lang: cs
+:doctype: book
+
+:toc: left
+:toc-title: Obsah
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+== Úvod
+
+Vítejte v administrátorské dokumentaci k systému časopisu Křídlo. Tento dokument poskytuje podrobné informace o jeho správě a konfiguraci.
+
+== Nasazení
+
+=== Prerekvizity
+
+Pro provoz aplikace je zapotřebí následujících prostředků:
+
+* HTTP server (Apache)
+* Relační databázový systém (MariaDB)
+* PHP server
+
+== Uživatelé
+
+Uživatele existující v rámci systému je možné spravovat pouze ručně, a to prostřednictvím přímých zápisů do tabulek `OSOBA` a `PROFIL` v databázi.
+Entita `OSOBA` obsahuje základní informace o osobě, jako jsou jméno, příjmení a kontakt; následně je třeba ji spárovat s entitou `PROFIL`, která nese údaje pro autentifikaci osoby jakožto uživatele systému – login, heslo a role.
+
+=== Role
+
+Uživatelská role určuje k jakým službám má daný uživatel přístup. V současné době systém registruje následující role:
+
+* AUTOR
+* RECENZENT
+* REDAKTOR
+
+=== Autentifikace
+
+Autentifikaci uživatelů zajišťuje systém samotný prostřednictívím přihlašovacího formuláře. Autentifikace se provádí na základě loginu a odpovídajícího hesla.
+
+== Persistence dat
+
+Veškerá data, která vznikají v rámci systému jsou ukládána do databáze bez možnosti jejich odstranění či změny tak, aby byla zajištěna integrita dat a zachována jejich kompletní historie. Některá data mohou existovat ve více verzích, v takovém případě však nedochází k přepisu původních dat, nýbrž jsou vytvořena data nová, která jsou s původními daty náležitě spárována.
+
+Výjimkou jsou datové soubory, které je nepraktické ukládat přímo do databáze a jsou proto ukládány na lokální úložiště serveru, na kterém je provozována samotná aplikace.
+
+=== Databáze
+Databázi je možné spravovat ručně pomocí terminálu nebo s využitím uživatelského rozhraní např. pomocí phpMyAdmin. Centrální konfigurace pro připojení k databázi se nachází v souboru `src/config/config.php`:
+
+* **DB_HOST**: Adresa databázového serveru
+* **DB_USER**: Přihlašovací jméno
+* **DB_PASS**: Přihlašovací heslo
+* **DB_NAME**: Název databáze
+
+=== Úložiště souborů
+Veškeré soubory existující v rámci systému se v současné době ukládají do určeného kořenového adresáře, resp. do podadresářů v tomto adresáři. Centrální konfigurace těchto adresářů se nachází v souboru `src/config/config.php`:
+
+* **UPLOAD_DIRECTORY**: Cesta ke kořenovému adresáři pro ukládání souborů
+* **UPLOAD_ARTICLES_DIRECTORY**: Cesta relativní ke kořenovému adresáři pro ukládání souborů článku
