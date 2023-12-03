@@ -16,6 +16,7 @@ endif::[]
 == Úvod
 
 Vítejte v uživatelské dokumentaci k systému časopisu Křídlo. Tento dokument poskytuje podrobné informace o jeho funkcích a jejich použití.
+Aplikace systému je v současné době provozována na adrese https://alpha.kts.vspj.cz/~halvova/rsp.
 
 == Základní funkce
 

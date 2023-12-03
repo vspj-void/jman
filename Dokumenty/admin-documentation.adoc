@@ -16,6 +16,7 @@ endif::[]
 == Úvod
 
 Vítejte v administrátorské dokumentaci k systému časopisu Křídlo. Tento dokument poskytuje podrobné informace o jeho správě a konfiguraci.
+Aplikace systému je v současné době provozována na adrese https://alpha.kts.vspj.cz/~halvova/rsp.
 
 == Nasazení
 
