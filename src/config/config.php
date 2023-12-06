@@ -14,6 +14,7 @@ define('UPLOAD_DIRECTORY', ROOT_DIRECTORY . DIRECTORY_SEPARATOR . "upload");
 define('UPLOAD_URL', ROOT_URL . "/upload");
 define('UPLOAD_ARTICLES_DIRECTORY', UPLOAD_DIRECTORY . DIRECTORY_SEPARATOR . "articles");
 define('UPLOAD_ARTICLES_URL', UPLOAD_URL . "/articles");
+define('UPLOAD_REVIEWS_DIRECTORY', UPLOAD_DIRECTORY . DIRECTORY_SEPARATOR . "reviews");
 define('SESSION_VAR_USER_IS_LOGGED', "user_is_logged");
 define('SESSION_VAR_USER_NAME', "username");
 define('NOT_LOGGED_REDIRECT_URL', "./index.php");

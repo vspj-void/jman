@@ -182,6 +182,7 @@ $resultArticles = $mysqli->query($queryArticles);
                 <th scope="col"><a href="?page=<?= $page; ?>&sort=AUTORSKY_TYM&order=<?= ($sortBy === 'AUTORSKY_TYM' && $sortOrder === 'ASC') ? 'DESC' : 'ASC'; ?>">Autor</a></th>
                 <th scope="col"><a href="?page=<?= $page; ?>&sort=TEMA&order=<?= ($sortBy === 'TEMA' && $sortOrder === 'ASC') ? 'DESC' : 'ASC'; ?>">Téma časopisu</a></th>
                 <th scope="col">Verze</th>
+                <th scope="col">Recenze</th>
                 <th scope="col">Otevřít článek</th>
                 <th scope="col">
                     <div class="d-flex align-items-end">
@@ -211,7 +212,9 @@ $resultArticles = $mysqli->query($queryArticles);
                     <td><?= !empty($rowArticle["CASOPIS_TEMA"]) ? $rowArticle["CASOPIS_TEMA"] : "Téma není k dispozici"; ?></td>
                     <td><?= !empty($rowArticle["VERZE"]) ? $rowArticle["VERZE"] : "Verze není k dispozici"; ?>
                         <button type="button" class="btn btn-info btn-sm open-modal" data-bs-toggle="modal" data-bs-target="#versionModal">Editovat</button>
+                        <a href="autor-one-article-all-versions.php?articleId=<?= $rowArticle['ID_PRISPEVKU']; ?>" class="btn btn-info btn-sm">Zobrazit verze</a>
                     </td>
+                    <td><a href="autor-one-article-all-reviews.php?articleId=<?= $rowArticle['ID_PRISPEVKU']; ?>" class="btn btn-info btn-sm">Zobrazit recenze</a></td>
                     <td><a href="<?= isset($rowArticle["CESTA"]) ? (UPLOAD_ARTICLES_URL . "/") . $rowArticle["CESTA"] : "#"; ?>" class="btn btn-primary" target="_blank">Otevřít článek</a></td>
                     <td>
                         <?php
