@@ -25,6 +25,9 @@ require_once "endpoints/get_unread_messages_count.php";
 
                 <?php if ($_SESSION[SESSION_VAR_USER_ROLE] == 'Recenzent') : ?>
                     <!-- Menu pro Recenzenta -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="recenzent-article.php">Články k recenzi</a>
+                    </li>
                 <?php endif; ?>
 
                 <?php if ($_SESSION[SESSION_VAR_USER_ROLE] == 'Redaktor') : ?>
