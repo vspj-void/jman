@@ -130,3 +130,29 @@ Funkce slouží redaktorovi k přehledu o počtu revizí jednotlivých článků
 3. Číslo udává kolikátá revize článku je nejnovější.
 4. Tlačítkem "Zobrazit verze" dojde k přesměrování na nový seznam, kde jsou vypsané sestupně všechny verze zvoleného článku.
 5. K dispozici je i soubor, který byl přiložený při vytváření verze autorem pomocí tlačítka "Otevřít článek".
+
+=== Archivace článků - Autor - přidání nové verze
+IMPORTANT: Funkce vyžaduje přihlášení a uživatelskou roli *AUTOR*
+
+Funkce slouží autorovi k přidání nové verze článku. Je dostupná na záložce "Moje články". Pro nahrání nové verze článku slouží tlačítko "Editovat" v příslušném řádku seznamu článků.
+Funkce notifikuje recenzenta o nahrání nové verze článku na platformě autorem. Recenzentovi se zobrazí v záložce zprávy nová, nepřečtená zpráva.  
+
+1. Na hlavním menu zvole záložku "Moje články".
+2. V seznamu článků u článku, který chcete revidovat klidněte ve sloupci "Verze" na modré tlačítko "Editovat".
+3. Zobrazí se vyskakovací okno, je možné změnit název článku. Obsah nové revize nahrajete přiložením souboru pomocí šedého tlačítka "Zvolit soubor".
+4. Potvrzením pomocí modrého tlačítka "Uložit změny" dojde k nahrání nové verze článku.
+5. V seznamu článků se inkrementuje čítač verze a pod možností "Otevřít článek" bude dostupná nejnovější nahraná verze článku.
+
+=== Vytváření recenze
+IMPORTANT: Funkce vyžaduje přihlášení a uživatelskou roli *RECENZENT*
+
+Funkce slouží recenzentovi k přidání recenze k danému článku.
+
+1. Na hlavním menu zvole záložku "Články k recenzi".
+2. V seznamu článků k recenzi je sloupec "Vytvořit recenzi" obsahující modré tlačítko "Vytvořit recenzi".
+3. Po kliknutí na tlačítko se otevře modální okno.
+4. Recenzent zvolí hodnocení (1-5) pro Aktuálnost, Zajímavost a přínostnost, Originalitu a odbornou úroveň, Jazykovou a stylistickou úroveň.
+5. Recenzent Přidá textový komentář.
+6. Pokud jsou všechny položky vyplněné, může kliknout na tlačítko Uložit recenzi.
+7. Recenze se uloží a Redaktor ji má k dispozici v jeho předhledu článků.
+8. Článek zmizí z přehledu Článků k recenzi.
