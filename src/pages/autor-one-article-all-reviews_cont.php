@@ -8,7 +8,7 @@ require_once "config/config.php";
 $mysqli = DbConnect::connect();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $recenzentId = $_POST['recenzentId'];
+    $redaktorId = 4; // Změněno na konstantní hodnotu 4
     $message = $_POST['message'];
 
     if (empty($message)) {
@@ -20,11 +20,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($uploadDirectory === false) {
         die("Nelze získat úplnou cestu k upload adresáři.");
     }
-    
-
-    if ($uploadDirectory === false) {
-        die("Nelze získat úplnou cestu k upload adresáři.");
-    }
 
     if (!file_exists($uploadDirectory)) {
         if (!mkdir($uploadDirectory, 0777, true)) {
@@ -32,8 +27,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    $fileName = $uploadDirectory . "/recenzent_message_" . $recenzentId . "_" . time() . ".txt";
-    $fileNameDatabaze = "recenzent_message_" . $recenzentId . "_" . time() . ".txt";
+    $fileName = $uploadDirectory . "/autor_message_" . $redaktorId . "_" . time() . ".txt";
+    $fileNameDatabaze = "autor_message_" . $redaktorId . "_" . time() . ".txt";
 
     $file = fopen($fileName, "w");
 
@@ -41,29 +36,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Nelze otevřít soubor pro zápis.");
     }
 
-    if (fwrite($file, "Zpráva od autora:\n\n" . $message) === false) {
+    $loggedUser = SessionInfo::getLoggedOsoba();
+    $authorName = $loggedUser->getJmeno() . ' ' . $loggedUser->getPrijmeni();
+
+    // Dotaz pro získání názvu článku podle ID (doporučuji vytvořit metodu pro dotaz na název článku)
+    $articleId = isset($_GET['articleId']) ? $_GET['articleId'] : null;
+    $queryArticleTitle = "SELECT NAZEV FROM PRISPEVEKVER WHERE ID_PRISPEVKU = $articleId";
+    $resultArticleTitle = $mysqli->query($queryArticleTitle);
+    $articleTitle = ($resultArticleTitle && $resultArticleTitle->num_rows > 0) ? $resultArticleTitle->fetch_assoc()['NAZEV'] : "Neznámý název článku";
+
+    $fileContent = "Autor: " . $authorName . "\nNázev článku: " . $articleTitle . "\n\n" . $message;
+
+    if (fwrite($file, $fileContent) === false) {
         fclose($file);
         die("Chyba při zápisu do souboru.");
     }
 
     fclose($file);
     chmod($fileName, 0777);
+
     // Insert data into the RECENZECHAT table
     $insertQuery = "INSERT INTO RECENZECHAT (ID_OD, ID_PRO, chat_cesta) VALUES (?, ?, ?)";
     $stmt = $mysqli->prepare($insertQuery);
-    $loggedUser = SessionInfo::getLoggedOsoba();
     $senderId = $loggedUser->getId();
-    
+
     if ($stmt === false) {
         die("Chyba při přípravě dotazu.");
     }
-    
-    $stmt->bind_param("iis", $senderId, $recenzentId, $fileNameDatabaze);
-    
+
+    $stmt->bind_param("iis", $senderId, $redaktorId, $fileNameDatabaze);
+
     if (!$stmt->execute()) {
         die("Chyba při vkládání dat do databáze.");
     }
-    
+
     $stmt->close();
 }
 
@@ -111,7 +117,7 @@ if ($articleId) {
                     <th scope="col">Jazyková úroveň</th>
                     <th scope="col">Originalita</th>
                     <th scope="col">Vyjádření recenzenta</th>
-                    <th scope="col">Kontaktovat recenzenta</th>
+                    <th scope="col">Námitka k recenzi</th>
                     <th scope="col">Verze článku</th>
                     <th scope="col">Původní článek</th>
                 </tr>
@@ -137,7 +143,7 @@ if ($articleId) {
                         <td>
                             <!-- Tlačítko pro otevření modálního okna pro kontakt s recenzentem -->
                             <button type="button" class="btn btn-primary btn-sm" onclick="openContactModal(<?= $rowReview['ID_RECENZENTA'] ?>)">
-                                Kontaktovat recenzenta
+                                Kontaktovat redaktora
                             </button>
                         </td>
                         <td><?= $rowReview['VERZE'] ?></td>
@@ -170,20 +176,20 @@ if ($articleId) {
     </div>
 </div>
 
-<!-- Modální okno pro kontakt s recenzentem -->
+<!-- Modální okno pro kontakt s redaktorem -->
 <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="contactModalLabel">Kontaktovat recenzenta</h5>
+                <h5 class="modal-title" id="contactModalLabel">Námitka k recenzi</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Formulář pro kontakt s recenzentem -->
+                <!-- Formulář pro kontakt s redaktorem -->
                 <form id="contactForm" action="" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="recenzentId" id="recenzentId" value="">
                     <div class="mb-3">
-                        <label for="message" class="form-label">Zpráva pro recenzenta</label>
+                        <label for="message" class="form-label">Zadejte text pro redaktora</label>
                         <textarea class="form-control" name="message" id="message" rows="3" required></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary">Odeslat</button>
@@ -207,14 +213,15 @@ if ($articleId) {
         commentModal.show();
     }
 
-    // JavaScript funkce pro otevření modálního okna pro kontakt s recenzentem
-    function openContactModal(recenzentId) {
-        // Nastavení dat recenzenta pro formulář
-        document.getElementById('recenzentId').value = recenzentId;
+// JavaScript funkce pro otevření modálního okna pro kontakt s redaktorem
+function openContactModal(redaktorId) {
+    // Nastavení dat redaktora pro formulář
+    document.getElementById('recenzentId').value = redaktorId;
 
-        // Otevření modálního okna
-        var contactModal = new bootstrap.Modal(document.getElementById('contactModal'));
-        contactModal.show();
-    }
+    // Otevření modálního okna
+    var contactModal = new bootstrap.Modal(document.getElementById('contactModal'));
+    contactModal.show();
+}
+
 </script>
 <?php } ?>

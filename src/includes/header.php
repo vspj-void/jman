@@ -31,6 +31,9 @@ require_once "endpoints/get_unread_messages_count.php";
                     <li>
                         <a class="nav-link" href="recenzent-statement-correction.php">Komunikace s autory</a>
                     </li>
+                    <li>
+                        <a class="nav-link" href="recenzent-namitka.php">Námitky</a>
+                    </li>
                 <?php $unreadCount = getUnreadMessagesCount();?>
                     <li class="nav-item">
                         <a class="nav-link" href="recenzent-message.php">Zprávy<?= $unreadCount > 0 ? "<sup class='text-danger'><b>+$unreadCount</b></sup>" : "" ?></a>
@@ -43,6 +46,9 @@ require_once "endpoints/get_unread_messages_count.php";
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="redaktor-article-complete-list.php">Přehled všech článků</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="redaktor-messages.php">Námitky</a>
                     </li>
                 <?php endif; ?>
 
