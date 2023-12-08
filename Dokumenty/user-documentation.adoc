@@ -66,6 +66,20 @@ Pro nabídnutí nového článku a jeho vložení do systému postupujte násled
 
 NOTE: Podporovanými formáty souboru článku jsou pouze dokumenty typu PDF a DOC(X). Název souboru nesmí obsahovat diakritiku, jako jsou háčky nebo čárky.
 
+==== Recenzní řízení článku
+
+Pro zjištění aktuálního stavu recenzního řízení ke svému článku nejprve najděte konkrétní článek v seznamu svých článků, kde ve sloupci "Stav" uvidíte jednu z následujích možností:
+
+* *NOVĚ PODANÝ*: Recenzní řízení nebylo dosud zahájeno, probíhá zvolení recenzentů pro Váš článek.
+* *V PROCESU*: Recenzní řízení bylo zahájeno, čeká se na vypracovaní a vyhodnocení recenzí
+daného čísla 
+* *ZVEŘEJNĚNÝ*: Váš článek prošel úspěšně recenzním řízením a stává se součastí daného tematického čísla časopisu.
+* *ZAMÍTNUTÝ*: Váš článek neprošel recenzním řízením a nebude uveřejněn.
+
+Pro zobrazení veškerých recenzí Vašeho článku klikněte u vybraného článku na tlačítko "Zobrazit recenze". Následně uvidíte přehled recenzí společně s informací o jejich původci a datu vypracování. Faktory s výpovědní hodnotou pak představují známky pro jednotlivé hodnotící kategorie na stupnici 1–5, kde 1 znamená nejlepší a 5 nejhorší, a písemné vyjádření recenzenta, které si zobrazíte kliknutím na tlačítko "Zobrazit vyjádření".
+
+NOTE: V případě, že nesouhlasíte se závěry dané recenze, uveďte své námitky do oponentního formuláře po kliknutí na tlačítko "Kontaktovat redaktora".
+
 === Nové články
 IMPORTANT: Funkce vyžaduje přihlášení a uživatelskou roli *REDAKTOR*.
 
