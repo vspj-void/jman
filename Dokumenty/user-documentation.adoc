@@ -156,3 +156,35 @@ Funkce slouží recenzentovi k přidání recenze k danému článku.
 6. Pokud jsou všechny položky vyplněné, může kliknout na tlačítko Uložit recenzi.
 7. Recenze se uloží a Redaktor ji má k dispozici v jeho předhledu článků.
 8. Článek zmizí z přehledu Článků k recenzi.
+
+=== Vytvoření námitky recenze - Autor
+IMPORTANT: Funkce vyžaduje přihlášení a uživatelskou roli *AUTOR*
+
+1. Na hlavním menu zvolte záložku "Moje články".
+2. V seznamu článků je sloupec "Recenze" obsahující modré tlačítko "Zobrazit recenze".
+3. Po kliknutí na tlačítko se otevře modální okno.
+4. Zde se zobrazí recenze a je zde možnost tlačítka "Kontaktovat redaktora".
+5. Po kliknutí na tlačítko se otevře nové okno, kde je možnost zadat text pro redaktora.
+6. Tlačítko "Odeslat" odešle redaktorovi námitku.
+
+=== Obdržení námitky recenze a kontaktování recenzenta - Redaktor
+IMPORTANT: Funkce vyžaduje přihlášení a uživatelskou roli *REDAKTOR*
+
+1. Na hlavním menu zvolte záložku "Námitky".
+2. V seznamu námitek je možnost si zobrazit zprávu, kterou nám zaslal autor obsahujicí jméno autora, název článku a zprávu.
+3. V horní části stránky je modré tlačítko "Napsat zprávu".
+4. Po otevření okna zvolte komu chcete zaslat zprávu.
+5. Vyplňte textové pole.
+6. Po zmáčknutí tlačítka "Odeslat zprávu" se odešle zpráva vybrané osobě.
+
+=== Obdržení námitky recenze a kontaktování redaktora - Recenzent
+IMPORTANT: Funkce vyžaduje přihlášení a uživatelskou roli *RECENZENT*
+
+1. Na hlavním menu zvolte záložku "Námitky"
+2. V seznamu námitek je sloupec Zobrazit zprávu obsahujicí modré tlačítko "Zobrazit zprávu".
+3. Po kliknutí se zobrazí zpráva od redaktora.
+4  Pro kontaktování redaktora je v seznamu námitek sloupec kontaktovat redaktora obsahujicí zelené tlačítko "Kontaktovat redaktora".
+5. Po otevření modálního okna zadejte zprávu.
+6. Kliknutím na tlačítko "Odeslat zprávu" se zpráva odešle redaktorovi.
+
+
