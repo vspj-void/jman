@@ -112,6 +112,7 @@ Pro zamítnutí článku postupujte následnovně:
 IMPORTANT: Funkce vyžaduje přihlášení a uživatelskou roli *AUTOR*
 
 Funkce slouží autorovi k přidání nové verze článku. Je dostupná na záložce "Moje články". Pro nahrání nové verze článku slouží tlačítko "Editovat" v příslušném řádku seznamu článků.
+Funkce notifikúje recenzenta o nahrání nové verze článku na platformě autorem. Recenzentovi se zobrazí v záložce zprávy nová, nepřečtená zpráva.  
 
 1. Na hlavním menu zvole záložku "Moje články".
 2. V seznamu článků u článku, který chcete revidovat klidněte ve sloupci "Verze" na modré tlačítko "Editovat".
