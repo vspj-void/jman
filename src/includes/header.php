@@ -28,6 +28,13 @@ require_once "endpoints/get_unread_messages_count.php";
                     <li class="nav-item">
                         <a class="nav-link" href="recenzent-article.php">Články k recenzi</a>
                     </li>
+                    <li>
+                        <a class="nav-link" href="recenzent-statement-correction.php">Komunikace s autory</a>
+                    </li>
+                <?php $unreadCount = getUnreadMessagesCount();?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="recenzent-message.php">Zprávy<?= $unreadCount > 0 ? "<sup class='text-danger'><b>+$unreadCount</b></sup>" : "" ?></a>
+                    </li>
                 <?php endif; ?>
 
                 <?php if ($_SESSION[SESSION_VAR_USER_ROLE] == 'Redaktor') : ?>
@@ -79,7 +86,8 @@ require_once "endpoints/get_unread_messages_count.php";
                             testuser/testuser (role: autor)<br>
                             testAutor/autor123<br>
                             testRedaktor/redaktor123<br>
-                            testRecenzent/recenzent123<br><brn><br>
+                            testRecenzent/recenzent123<br>
+                            testRecenzent2/recenzent1232<br><brn><br>
                                                      
                                                        
                             Uživatelské jméno:</label>
