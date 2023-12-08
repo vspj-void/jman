@@ -97,7 +97,7 @@ if ($articleId) {
                     FROM RECENZE R
                     INNER JOIN OSOBA O ON R.ID_RECENZENTA = O.ID
                     INNER JOIN PRISPEVEKVER PV ON R.ID_PRISPEVKU = PV.ID_PRISPEVKU AND R.VERZE = PV.VERZE
-                    WHERE R.ID_PRISPEVKU = $articleId
+                    WHERE R.ID_PRISPEVKU = $articleId AND R.CESTA IS NOT NULL
                     ORDER BY R.DATUM_RECENZE DESC";
 
     $resultReviews = $mysqli->query($queryReviews);
