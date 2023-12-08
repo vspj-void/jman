@@ -234,6 +234,7 @@
                                 case 1:
                                     echo '<a href="#" onclick="confirmAction(\'?page=' . $page . '&action=publishArticle&articleId=' . $rowArticle["ID_PRISPEVKU"] . '\', \'Opravdu chcete zveřejnit tento článek?\')" class="btn btn-success">Zveřejnit článek</a>';
                                     echo '<a href="#" onclick="confirmAction(\'?page=' . $page . '&action=rejectArticle&articleId=' . $rowArticle["ID_PRISPEVKU"] . '\', \'Opravdu chcete zamítnout tento článek?\')" class="btn btn-danger">Zamítnout článek</a>';
+                                    echo '<button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#reviewerModal" data-id="' . $rowArticle['ID_PRISPEVKU'] . '" data-version="' . $rowArticle['VERZE'] . '">Přiřadit recenzenty</button>';
                                     break;
                                 default:
                             }
@@ -244,6 +245,96 @@
             </tbody>
         </table>
     </div>
+
+    <div class="modal fade" id="reviewerModal" tabindex="-1" aria-labelledby="reviewerModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Vybrat recenzenty</h5>
+            </div>
+            <div class="modal-body">
+                    <form id="reviewerForm">
+                        <input type="hidden" id="recordId" name="recordId">
+                        <input type="hidden" id="version" name="version">
+                        <input type="hidden" id="userID" name="userID" value="<?php echo SessionInfo::getLoggedOsoba()->getId(); ?>">
+                        <select class="form-select" id="reviewer1" name="reviewer1" required>
+                            <?php
+                            // Dotaz pro získání recenzentů (role 2), kterým chcete poslat stuff na recenzi
+                            $queryAuthorsToSendMessage = "SELECT OSOBA.ID, OSOBA.JMENO, OSOBA.PRIJMENI
+                                                           FROM PROFIL
+                                                           JOIN OSOBA ON OSOBA.LOGIN = PROFIL.LOGIN
+                                                           WHERE PROFIL.ROLE = 2";
+                            $stmtAuthorsToSendMessage = $mysqli->prepare($queryAuthorsToSendMessage);
+                            $stmtAuthorsToSendMessage->execute();
+                            $resultAuthorsToSendMessage = $stmtAuthorsToSendMessage->get_result();
+                        
+                            while ($row = $resultAuthorsToSendMessage->fetch_assoc()) {
+                                echo '<option value="' . $row['ID'] . '">' . $row['JMENO'] . ' ' . $row['PRIJMENI'] . '</option>';
+                            }
+                            ?>
+                        </select>
+
+                        <select class="form-select" id="reviewer2" name="reviewer2" required>
+                            <?php
+                            // Dotaz pro získání recenzentů (role 2), kterým chcete poslat stuff na recenzi
+                            $queryAuthorsToSendMessage = "SELECT OSOBA.ID, OSOBA.JMENO, OSOBA.PRIJMENI
+                                                           FROM PROFIL
+                                                           JOIN OSOBA ON OSOBA.LOGIN = PROFIL.LOGIN
+                                                           WHERE PROFIL.ROLE = 2";
+                            $stmtAuthorsToSendMessage = $mysqli->prepare($queryAuthorsToSendMessage);
+                            $stmtAuthorsToSendMessage->execute();
+                            $resultAuthorsToSendMessage = $stmtAuthorsToSendMessage->get_result();
+                        
+                            while ($row = $resultAuthorsToSendMessage->fetch_assoc()) {
+                                echo '<option value="' . $row['ID'] . '">' . $row['JMENO'] . ' ' . $row['PRIJMENI'] . '</option>';
+                            }
+                            ?>
+                        </select>
+                        <label for="reviewDate">Termín recenze:</label>
+                        <input type="date" class="form-control" id="reviewDate" name="reviewDate" required>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zavřít</button>
+                    <button type="button" class="btn btn-primary" onclick="submitReviewers()">Odeslat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    $(document).ready(function() {
+        // Tento kód se spustí, když je modální okno otevřeno
+        $('#reviewerModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget); // Tlačítko, které spustilo modální okno
+            var recordId = button.data('id'); // Získání dat z data-id
+            var version = button.data('version');
+            $('#recordId').val(recordId);
+            $('#version').val(version);
+        });
+
+        // Funkce pro odeslání dat formuláře
+        window.submitReviewers = function() {
+            var formData = $('#reviewerForm').serialize(); // Serializuje všechna data formuláře, včetně recordId
+            
+            $.ajax({
+                type: 'POST',
+                url: 'endpoints/send_to_reviewers.php',
+                data: formData,
+                success: function(response) {
+                    $('#reviewerModal').modal('hide'); // Zavření modálního okna
+                },
+                error: function() {
+                    // Chyba při odesílání
+                    alert('Došlo k chybě při odesílání. Zkuste to prosím znovu.');
+                }
+            });
+        };
+    });
+</script>
+   
+
+
 
     <div class="container mt-4">
         <?php if ($resultArticles->num_rows > 0) : ?>
