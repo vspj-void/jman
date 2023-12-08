@@ -111,7 +111,7 @@ Pro zamítnutí článku postupujte následnovně:
 === Archivace článků - Autor - přidání nové verze
 IMPORTANT: Funkce vyžaduje přihlášení a uživatelskou roli *AUTOR*
 
-Funkce slouží autorovi k přidání nové verze článku. Je dostupná na záložce "Moje články". Pro nahrání nové verze článku slouží tlačítko "Editovat" v příslušném řádku seznamu článků.<br/>
+Funkce slouží autorovi k přidání nové verze článku. Je dostupná na záložce "Moje články". Pro nahrání nové verze článku slouží tlačítko "Editovat" v příslušném řádku seznamu článků.
 Funkce notifikuje recenzenta o nahrání nové verze článku na platformě autorem. Recenzentovi se zobrazí v záložce zprávy nová, nepřečtená zpráva.  
 
 1. Na hlavním menu zvole záložku "Moje články".
