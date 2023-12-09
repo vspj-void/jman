@@ -43,14 +43,31 @@ $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'NAZEV'; // defaultní řazení
 $sortOrder = isset($_GET['order']) && strtoupper($_GET['order']) === 'DESC' ? 'DESC' : 'ASC';
 
 // Dotaz pro získání článků s možností řazení
-$queryArticlesBase = "SELECT PV.*, GROUP_CONCAT(CONCAT(O.JMENO, ' ', O.PRIJMENI) SEPARATOR ', ') as AUTORSKY_TYM, C.TEMA as CASOPIS_TEMA 
-                      FROM PRISPEVEKVER PV
-                      INNER JOIN PRISPEVEK P ON PV.ID_PRISPEVKU = P.ID
-                      INNER JOIN AUTORI A ON P.ID = A.ID_PRISPEVKU
-                      INNER JOIN OSOBA O ON A.ID_OSOBY = O.ID
-                      INNER JOIN CASOPIS C ON P.ID_CASOPISU = C.ID
-                      WHERE P.STAV = 0
-                      GROUP BY P.ID, PV.VERZE";
+$queryArticlesBase = "
+    WITH NEJNOVEJSI_VERZE AS (
+        SELECT
+            PRI.ID_PRISPEVKU,
+            MAX(PRI.VERZE) AS MAX_VERZE
+        FROM
+            PRISPEVEKVER PRI
+        GROUP BY
+            ID_PRISPEVKU
+    )
+    SELECT
+        PV.*,
+        GROUP_CONCAT(CONCAT(O.JMENO, ' ', O.PRIJMENI) SEPARATOR ', ') as AUTORSKY_TYM,
+        C.TEMA as CASOPIS_TEMA 
+    FROM
+        PRISPEVEKVER PV
+        INNER JOIN NEJNOVEJSI_VERZE ON (PV.ID_PRISPEVKU = NEJNOVEJSI_VERZE.ID_PRISPEVKU AND PV.VERZE = NEJNOVEJSI_VERZE.MAX_VERZE)
+        INNER JOIN PRISPEVEK P ON PV.ID_PRISPEVKU = P.ID
+        INNER JOIN AUTORI A ON P.ID = A.ID_PRISPEVKU
+        INNER JOIN OSOBA O ON A.ID_OSOBY = O.ID
+        INNER JOIN CASOPIS C ON P.ID_CASOPISU = C.ID
+    WHERE
+        P.STAV = 0
+    GROUP BY
+        P.ID, PV.VERZE";
 
 // Pokud je zadán vyhledávací termín
 if (!empty($searchTerm)) {
