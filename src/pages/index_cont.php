@@ -20,7 +20,7 @@ if (isset($_POST["articleSubmit"])) {
         <p class="lead">Píšeme pro Vás</p>
         <hr class="my-4">
         <p>Více informací o nás.</p>
-        <a class="btn btn-primary btn-lg" href="#" role="button">Zjistit více</a>
+        <a class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#infoModal" role="button">Zjistit více</a>
     </div>
 </div>
 <br />
@@ -34,6 +34,25 @@ if (isset($_POST["articleSubmit"])) {
             <button type="submit" class="btn btn-primary">Vyhledat</button>
         </div>
     </form>
+</div>
+
+<!-- Modální okno pro informace o časopisu -->
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="infoModalLabel">Informace o Časopisu Křídlo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                
+Nejedná se o stránky skutečného časopisu. Tato aplikace je výsledkem školního projektu v kurzu Řízení SW projektů na Vysoké škole polytechnické Jihlava. Nejedná se o stránky skutečného odborného časopisu!
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zavřít</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <?php
