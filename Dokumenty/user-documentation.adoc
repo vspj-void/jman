@@ -42,6 +42,10 @@ Jako čtenář máte možnost prohlížet vydané články přímo na úvodní s
 
 TIP: Využijte funkce filtrování a řazení pro efektivní procházení vydaných článků.
 
+=== Helpdesk
+
+Pokud si nevíte rady a potřebujete poradit v technických otázkách, neváhejte kontaktovat náš Helpdesk. Jako čtenář máte možnost se obrátit na uživatelskou podporu časopisu Křídlo prostřednictvím kontaktního formuláře. Ten lze vyvolat kliknutím na záložku "Helpdesk". Ve formuláři následně uveďte své celé jméno a e-mail, kam Vás podpora časopisu může opětovat svojí odpovědí. Poté zvolte kategorii, do které Váš problém spadá a pokuste se svůj problém co nejlépe popsat. Formulář odešlete kliknutím na tlačítko "Odeslat".
+
 === Moje články
 IMPORTANT: Funkce vyžaduje přihlášení a uživatelskou roli *AUTOR*.
 
