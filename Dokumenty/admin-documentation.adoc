@@ -64,3 +64,4 @@ Veškeré soubory existující v rámci systému se v současné době ukládaj�
 
 * **UPLOAD_DIRECTORY**: Cesta ke kořenovému adresáři pro ukládání souborů
 * **UPLOAD_ARTICLES_DIRECTORY**: Cesta relativní ke kořenovému adresáři pro ukládání souborů článku
+* **UPLOAD_REVIEWS_DIRECTORY**: Cesta relativní ke kořenovému adresáři pro ukládání souborů recenze
